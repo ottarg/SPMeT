@@ -53,7 +53,6 @@ I = 5*p.OneC*ones(size(t));
 % Data structure with time,current, initial condition
 data.time = t;
 data.cur = I;
-NT = length(t);
 
 %% Preallocation & Initial Conditions
 
@@ -133,20 +132,7 @@ T1 = x(:,end-2);
 T2 = x(:,end-1);
 delta_sei = x(:,end);
 
-
-% Output Function %%%
-V = zeros(NT,1);
-V_spm = zeros(NT,1);
-SOC_n = zeros(NT,1);
-SOC_p = zeros(NT,1);
-c_ss_n = zeros(NT,1);
-c_ss_p = zeros(NT,1);
-c_n = zeros(NT,p.Nr+1);
-c_p = zeros(NT,p.Nr+1);
-c_e = zeros(p.Nx+1,NT);
-n_Li_s = zeros(NT,1);
-
-for k = 1:NT
+for k = 1:length(t)
     
     % Compute outputs
     [~,V(k),V_spm(k),SOC_n(k),SOC_p(k),c_ss_n(k),c_ss_p(k),c_e(:,k)] = ...
@@ -161,7 +147,6 @@ for k = 1:NT
             + (3*p.epsilon_s_n*p.L_n*p.Area) * trapz(r_vec,r_vec.^2.*c_n(k,:)');
     
 end
-
 
 % Output Elapsed time
 simtime = toc;
