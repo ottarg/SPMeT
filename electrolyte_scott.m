@@ -36,7 +36,7 @@ end
 function [c_e_dot] = ode_electrolyte(t,c_e,data,p)
 
     % Parse and interpolate input current, compute j_n
-    cur = lininterp1f(data.time,data.cur,t,[]);
+    cur = interp1(data.time,data.cur,t,[]);
     jn = cur/(p.Faraday*p.a_s_n*p.Area*p.L_n);
     jp = -cur/(p.Faraday*p.a_s_p*p.Area*p.L_p);
 
