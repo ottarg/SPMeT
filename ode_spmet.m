@@ -8,7 +8,7 @@ function [x_dot,varargout] = ode_spmet(t,x,data,p)
 %% Parse Input Data
 
 % Parse and interpolate current
-cur = lininterp1f(data.time,data.cur,t,[]);
+cur = interp1(data.time,data.cur,t,[]);
 
 % Parse states
 c_s_n = x(1:(p.Nr-1));
