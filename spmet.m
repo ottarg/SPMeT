@@ -24,7 +24,7 @@ disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
 
 %% Electrochemical Model Parameters
 % Load Lithium Cobolt Oxide Params, adopted from DUALFOIL
-run param/params_LCO
+p = params_LCO();
 
 %% Input charge/discharge Current Data %%
 % % Current | Positive <=> Discharge, Negative <=> Charge
@@ -59,7 +59,6 @@ NT = length(t);
 
 %%% Finite difference for spherical particle
 p.Nr = 30; % 100 Make this very large so it closely approximates the true model
-Nr = p.Nr;
 p.delta_r_n = 1/p.Nr;
 p.delta_r_p = 1/p.Nr;
 r_vec = (0:p.delta_r_n:1)';
@@ -114,28 +113,7 @@ disp(' ');
 %% Generate Constant System Matrices
 
 % Electrolyte concentration matrices
-[M1n,M2n,M3n,M4n,M5n, M1s,M2s,M3s,M4s, M1p,M2p,M3p,M4p,M5p, C_ce] = c_e_mats(p);
-
-p.ce.M1n = M1n;
-p.ce.M2n = M2n;
-p.ce.M3n = M3n;
-p.ce.M4n = M4n;
-p.ce.M5n = M5n;
-
-p.ce.M1s = M1s;
-p.ce.M2s = M2s;
-p.ce.M3s = M3s;
-p.ce.M4s = M4s;
-
-p.ce.M1p = M1p;
-p.ce.M2p = M2p;
-p.ce.M3p = M3p;
-p.ce.M4p = M4p;
-p.ce.M5p = M5p;
-
-p.ce.C = C_ce;
-
-clear M1n M2n M3n M4n M5n M1s M2s M3s M4s M1p M2p M3p M4p M5p C_ce;
+p = c_e_mats(p);
 
 %% Simulate SPMeT Plant
 tic;
