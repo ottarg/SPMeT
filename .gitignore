@@ -1,0 +1,37 @@
+*.autosave
+*.slxc
+*.log
+*.asv
+*.r20*[a,b]
+*.orig
+*.fig
+*.mdmp
+*.bak
+*.WDF
+standalone.slx
+tmp/
+slprj/
+cache/
+reports/
+tempCellDataFiles/
+slurm
+~*
+dig/
+
+# Ignore everything in 'Local Data' (folder created by motor model/ipms)
+Local*Data/
+
+# Python ignores
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.xml
+
+# Ignore API Credentials
+websites/api_tokens/
+
+# Ignore Offline Plotly Files
+plotly_ignore.html
+
+# Ignore pickle files (python gen storage)
+*.gpickle
