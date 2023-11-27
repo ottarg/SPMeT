@@ -72,7 +72,7 @@ function p = params_LCO()
     
     % Miscellaneous
     p.t_plus = 0.4;       % Transference number
-    p.Faraday = 96485.33289;    % Faraday's constant, [Coulumbs/mol]
+%     p.Faraday = 96485.33289;    % Faraday's constant, [Coulumbs/mol]
     p.Area = 1;           % Electrode current collector area [m^2]
     
     %% Kinetic Params
@@ -133,11 +133,11 @@ function p = params_LCO()
     % Maxima based on DUALFOIL 
     % line 588 in DUALFOIL Fortran code
     
-    p.c_s_n_max = 3.6e3 * 372 * 1800 / p.Faraday;   % Max concentration in anode, [mol/m^3]
+    p.c_s_n_max = 3.6e3 * 372 * 1800 / faraday;   % Max concentration in anode, [mol/m^3]
     %p.c_s_n_max = 3.6e3 * 372 * 2260 / p.Faraday;   % Max concentration in anode, [mol/m^3]
     
     %p.c_s_p_max = 3.6e3 * 247 * 5010 / p.Faraday;    % Max concentration in cathode, [mol/m^3]
-    p.c_s_p_max = 3.6e3 * 274 * 5010 / p.Faraday;    % Max concentration in cathode, [mol/m^3]
+    p.c_s_p_max = 3.6e3 * 274 * 5010 / faraday;    % Max concentration in cathode, [mol/m^3]
     
     p.n_Li_s = 2.5; %2.781;        % Total moles of lithium in solid phase [mol]
     p.c_e = 1e3;              % Fixed electrolyte concentration for SPM, [mol/m^3]

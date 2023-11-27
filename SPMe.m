@@ -198,8 +198,8 @@ classdef SPMe < handle
 
             %%% MOLAR FLUXES
             % Compute total molar flux
-            jn_tot = cur/(obj.cell_properties.Faraday*obj.cell_properties.a_s_n*obj.cell_properties.Area*obj.cell_properties.L_n);
-            jp_tot = -cur/(obj.cell_properties.Faraday*obj.cell_properties.a_s_p*obj.cell_properties.Area*obj.cell_properties.L_p);
+            jn_tot = cur/(faraday*obj.cell_properties.a_s_n*obj.cell_properties.Area*obj.cell_properties.L_n);
+            jp_tot = -cur/(faraday*obj.cell_properties.a_s_p*obj.cell_properties.Area*obj.cell_properties.L_p);
 
 
             %%% SOLID PHASE DYNAMICS
@@ -277,7 +277,7 @@ classdef SPMe < handle
             c_e_bar = [cen_bar; ces_bar; cep_bar];
             [i_0n,i_0p] = exch_cur_dens(obj,k_p,k_n,c_ss_n,c_ss_p,c_e_bar);
             % Overpotentials
-            RTaF=(obj.cell_properties.R*T1)/(obj.cell_properties.alph*obj.cell_properties.Faraday);
+            RTaF=(obj.cell_properties.R*T1)/(obj.cell_properties.alph*faraday);
             eta_n = RTaF * asinh(cur / (2*obj.cell_properties.a_s_n*obj.cell_properties.Area*obj.cell_properties.L_n*i_0n(1)));
             eta_p = RTaF * asinh(-cur / (2*obj.cell_properties.a_s_p*obj.cell_properties.Area*obj.cell_properties.L_p*i_0p(end)));
 
@@ -293,7 +293,7 @@ classdef SPMe < handle
             V_electrolyteCond = (obj.cell_properties.L_n/(2*kap_n_eff) + 2*obj.cell_properties.L_s/(2*kap_s_eff) + obj.cell_properties.L_p/(2*kap_p_eff))*cur;
 
             % Overpotential due to electrolyte polarization
-            V_electrolytePolar = (2*obj.cell_properties.R*T1)/(obj.cell_properties.Faraday) * (1-obj.cell_properties.t_plus)* ...
+            V_electrolytePolar = (2*obj.cell_properties.R*T1)/(faraday) * (1-obj.cell_properties.t_plus)* ...
                 ( (1+dfca_n) * (log(cens) - log(ce0n)) ...
                 +(1+dfca_s) * (log(cesp) - log(cens)) ...
                 +(1+dfca_p) * (log(ce0p) - log(cesp)));
@@ -312,13 +312,13 @@ classdef SPMe < handle
             %   NOTE2: We assume this submodel only applies to anode
 
             % Difference btw solid and electrolyte overpotential [V]
-            phi_se = eta_n + Unref + obj.cell_properties.Faraday*R_tot_n*jn_tot;
+            phi_se = eta_n + Unref + faraday*R_tot_n*jn_tot;
 
             % Side exn overpotential [V]
-            eta_s = phi_se - obj.cell_properties.Us - obj.cell_properties.Faraday*R_tot_n * jn_tot;
+            eta_s = phi_se - obj.cell_properties.Us - faraday*R_tot_n * jn_tot;
 
             % Molar flux of side rxn [mol/s-m^2]
-            j_s = -obj.cell_properties.i0s/obj.cell_properties.Faraday * exp((-obj.cell_properties.alph*obj.cell_properties.Faraday)/(obj.cell_properties.R*T1)*eta_s);
+            j_s = -obj.cell_properties.i0s/faraday * exp((-obj.cell_properties.alph*faraday)/(obj.cell_properties.R*T1)*eta_s);
 
             % SEI layer growth model [m/s]
             delta_sei_dot = -obj.cell_properties.M_P/(obj.cell_properties.rho_P) * j_s;
