@@ -110,10 +110,10 @@ function p = params_LCO()
     % Heat transfer parameters
     % Taken from Zhang et al (2014) [Harbin]
     % http://dx.doi.org/10.1016/j.jpowsour.2014.07.110
-    p.C1 = 62.7;    % [J/K]
-    p.C2 = 4.5;     % [J/K]
-    p.h12 = 10; %1.9386; % [W/K]
-    p.h2a = 21.45;  % [W/K]
+    p.thermal.C1 = 62.7;    % [J/K]
+    p.thermal.C2 = 4.5;     % [J/K]
+    p.thermal.h12 = 10; %1.9386; % [W/K]
+    p.thermal.h2a = 21.45;  % [W/K]
     
     %% Aging submodel parameters
     

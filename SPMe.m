@@ -395,8 +395,8 @@ classdef SPMe < handle
             Qdot = -cur*(V - (Upb - Unb));
 
             % Differential equations
-            T1_dot = (obj.cell_properties.h12 * (T2-T1) + Qdot) / obj.cell_properties.C1;
-            T2_dot = (obj.cell_properties.h12 * (T1-T2) + obj.cell_properties.h2a*(obj.cell_properties.T_amb - T2)) / obj.cell_properties.C2;
+            T1_dot = (obj.cell_properties.thermal.h12 * (T2-T1) + Qdot) / obj.cell_properties.thermal.C1;
+            T2_dot = (obj.cell_properties.thermal.h12 * (T1-T2) + obj.cell_properties.thermal.h2a*(obj.cell_properties.T_amb - T2)) / obj.cell_properties.thermal.C2;
 
 
             %% Concatenate time derivatives
