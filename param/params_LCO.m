@@ -42,17 +42,11 @@ function p = params_LCO()
     
     p.bruggemann_porosity = 1.5;       % Bruggeman porosity
     
-%     % Conductivity of solid
-%     p.anode.solid_conductivity = 100;    % Conductivity of solid in neg. electrode, [1/Ohms*m]
-%     p.cathode.solid_conductivity = 10;    % Conductivity of solid in pos. electrode, [1/Ohms*m]
-%     
     % Miscellaneous
     p.t_plus = 0.4;       % Transference number
     p.electrode_area = 1;           % Electrode current collector area [m^2]
     
     %% Kinetic Params
-%     p.gas_constant = 8.314472;       % Gas constant, [J/mol-K]
-    
     p.charge_transfer_coefficient = 0.5; % Charge transfer coefficients
     
     p.anode.sei_resistivity = 1e-3;    % Resistivity of SEI layer, [Ohms*m^2]
@@ -62,11 +56,6 @@ function p = params_LCO()
     % Nominal Reaction rates
     p.anode.reaction_rate = 1e-5;  % Reaction rate in neg. electrode, [(A/m^2)*(mol^3/mol)^(1+alpha)]
     p.cathode.reaction_rate = 3e-7; % Reaction rate in pos. electrode, [(A/m^2)*(mol^3/mol)^(1+alpha)]
-    
-    %% Thermodynamic Params
-    
-    % Ambient Temperature
-    p.ambient_temperature = 298.15; % [K]
     
     % Activation Energies
     % Taken from Zhang et al (2014) [Harbin]
@@ -79,9 +68,11 @@ function p = params_LCO()
     p.E.De = 37.04e3;
     p.E.kappa_e = 34.70e3;
     
+    %% Thermodynamic Params
+    % Ambient Temperature
+    p.ambient_temperature = 298.15; % [K]
     % Reference temperature
     p.nominal_temperature = 298.15; %[K]
-    
     % Heat transfer parameters
     % Taken from Zhang et al (2014) [Harbin]
     % http://dx.doi.org/10.1016/j.jpowsour.2014.07.110
@@ -98,27 +89,24 @@ function p = params_LCO()
     %   DOI: 10.1149/1.1634273
     %   NOTE: These parameters have NOT been experimentally validated by eCAL
     
-    p.kappa_P = 1;      % [S/m] conductivity of side rxn product
-    p.M_P = 7.3e1;      % [kg/mol] molecular weight of side rxn product
-    p.rho_P = 2.1e3;    % [kg/m^3] mass density of side rxn product
-    p.i0s = 0; %1.5e-6;     % [A/m^2] exchange current density of side rxn
-    p.Us = 0.4;         % [V] reference potential of side rxn
+    p.side_reaction_product.conductivity = 1;      % [S/m] conductivity of side rxn product
+    p.side_reaction_product.molecular_weight = 7.3e1;      % [kg/mol] molecular weight of side rxn product
+    p.side_reaction_product.mass_density = 2.1e3;    % [kg/m^3] mass density of side rxn product
+    p.side_reaction_product.exchange_current_density = 0; %1.5e-6;     % [A/m^2] exchange current density of side rxn
+    p.side_reaction_product.reference_potential = 0.4;         % [V] reference potential of side rxn
     
     %% Concentrations
     % Maxima based on DUALFOIL 
     % line 588 in DUALFOIL Fortran code
     
-    p.c_s_n_max = 3.6e3 * 372 * 1800 / faraday;   % Max concentration in anode, [mol/m^3]
-    %p.c_s_n_max = 3.6e3 * 372 * 2260 / p.Faraday;   % Max concentration in anode, [mol/m^3]
+    p.anode.maximum_concentration = 3.6e3 * 372 * 1800 / faraday;   % Max concentration in anode, [mol/m^3]
+    p.cathode.maximum_concentration = 3.6e3 * 274 * 5010 / faraday;    % Max concentration in cathode, [mol/m^3]
     
-    %p.c_s_p_max = 3.6e3 * 247 * 5010 / p.Faraday;    % Max concentration in cathode, [mol/m^3]
-    p.c_s_p_max = 3.6e3 * 274 * 5010 / faraday;    % Max concentration in cathode, [mol/m^3]
-    
-    p.n_Li_s = 2.5; %2.781;        % Total moles of lithium in solid phase [mol]
-    p.c_e = 1e3;              % Fixed electrolyte concentration for SPM, [mol/m^3]
+    p.total_moles_lithium = 2.5; %2.781;        % Total moles of lithium in solid phase [mol]
+    p.electrolyte_concentration = 1e3;              % Fixed electrolyte concentration for SPM, [mol/m^3]
     
     %% Cutoff voltages
-    p.volt_max = 4.7; %4.1113; %4.7;
+    p.volt_max = 4.7; %4.1113;
     p.volt_min = 3.105; %2.6;
 
 end

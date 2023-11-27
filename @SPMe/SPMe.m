@@ -25,15 +25,15 @@ classdef SPMe < handle
             tol = 1e-5;
 
             % Initial Guesses
-            x_low = 0.2 * obj.cell_properties.c_s_p_max;
-            x_high = 1.0 * obj.cell_properties.c_s_p_max;
-            x(1) = 0.6 * obj.cell_properties.c_s_p_max;
+            x_low = 0.2 * obj.cell_properties.cathode.maximum_concentration;
+            x_high = 1.0 * obj.cell_properties.cathode.maximum_concentration;
+            x(1) = 0.6 * obj.cell_properties.cathode.maximum_concentration;
 
             % Iterate Bisection Algorithm
             for idx = 1:maxiters
 
-                theta_p = x(idx)/obj.cell_properties.c_s_p_max;
-                theta_n = (obj.cell_properties.n_Li_s-obj.cell_properties.cathode.volume_fraction_solid*obj.cell_properties.cathode.electrode_thickness*obj.cell_properties.electrode_area*x(idx))/(obj.cell_properties.c_s_n_max*obj.cell_properties.anode.volume_fraction_solid*obj.cell_properties.anode.electrode_thickness*obj.cell_properties.electrode_area);
+                theta_p = x(idx)/obj.cell_properties.cathode.maximum_concentration;
+                theta_n = (obj.cell_properties.total_moles_lithium-obj.cell_properties.cathode.volume_fraction_solid*obj.cell_properties.cathode.electrode_thickness*obj.cell_properties.electrode_area*x(idx))/(obj.cell_properties.anode.maximum_concentration*obj.cell_properties.anode.volume_fraction_solid*obj.cell_properties.anode.electrode_thickness*obj.cell_properties.electrode_area);
 
                 OCPn = refPotentialAnode(obj.cell_properties,theta_n);
                 OCPp = refPotentialCathode(obj.cell_properties,theta_p);
@@ -50,13 +50,13 @@ classdef SPMe < handle
 
                 % Bisection
                 x(idx+1) = (x_high + x_low)/2;
-                x(idx+1)/obj.cell_properties.c_s_p_max;
+                x(idx+1)/obj.cell_properties.cathode.maximum_concentration;
 
             end
 
             % Output conveged csp0
             csp0 = x(idx);
-            csn0 = (obj.cell_properties.n_Li_s - obj.cell_properties.cathode.volume_fraction_solid * obj.cell_properties.cathode.electrode_thickness * obj.cell_properties.electrode_area * csp0) / (obj.cell_properties.anode.volume_fraction_solid * obj.cell_properties.anode.electrode_thickness * obj.cell_properties.electrode_area);
+            csn0 = (obj.cell_properties.total_moles_lithium - obj.cell_properties.cathode.volume_fraction_solid * obj.cell_properties.cathode.electrode_thickness * obj.cell_properties.electrode_area * csp0) / (obj.cell_properties.anode.volume_fraction_solid * obj.cell_properties.anode.electrode_thickness * obj.cell_properties.electrode_area);
         end
         function initialize_electrolyte_matrices(obj)
 
@@ -148,16 +148,14 @@ classdef SPMe < handle
             c_n0 = csn0 * ones(obj.discretization.Nr-1,1);
             c_p0 = csp0 * ones(obj.discretization.Nr-1,1);
             % Electrolyte concentration
-            ce0 = obj.cell_properties.c_e*ones(obj.discretization.Nxn+obj.discretization.Nxs+obj.discretization.Nxp - 3,1);
+            ce0 = obj.cell_properties.electrolyte_concentration*ones(obj.discretization.Nxn+obj.discretization.Nxs+obj.discretization.Nxp - 3,1);
             % Temperature
             T10 = obj.cell_properties.ambient_temperature;
             T20 = obj.cell_properties.ambient_temperature;
-
             % SEI layer
             delta_sei0 = 0;
 
             initialize_electrolyte_matrices(obj);
-            %             initialize_solid_phase_matrices(obj);
             obj.x0 = [c_n0; c_p0; ce0; T10; T20; delta_sei0];
 
         end
@@ -180,11 +178,11 @@ classdef SPMe < handle
 
         
 
-        function initialize_solid_phase_matrices(obj,D_s_n,D_s_p)
+        function initialize_solid_phase_matrices(obj,anode_diffusion_coefficient,cathode_diffusion_coefficient)
 
             % Electrochemical Model Parameters
-            alpha_n = D_s_n / (obj.cell_properties.anode.particle_radius * obj.discretization.delta_r_n)^2;
-            alpha_p = D_s_p / (obj.cell_properties.cathode.particle_radius * obj.discretization.delta_r_p)^2;
+            alpha_n = anode_diffusion_coefficient / (obj.cell_properties.anode.particle_radius * obj.discretization.delta_r_n)^2;
+            alpha_p = cathode_diffusion_coefficient / (obj.cell_properties.cathode.particle_radius * obj.discretization.delta_r_p)^2;
 
             % Block matrices
             M1_n = zeros(obj.discretization.Nr-1);
@@ -231,8 +229,8 @@ classdef SPMe < handle
 
             N2 = diag([-3,3]);
 
-            N3_n = [0; -(2*obj.discretization.delta_r_n * obj.cell_properties.anode.particle_radius)/(D_s_n)];
-            N3_p = [0; -(2*obj.discretization.delta_r_p * obj.cell_properties.cathode.particle_radius)/(D_s_p)];
+            N3_n = [0; -(2*obj.discretization.delta_r_n * obj.cell_properties.anode.particle_radius)/(anode_diffusion_coefficient)];
+            N3_p = [0; -(2*obj.discretization.delta_r_p * obj.cell_properties.cathode.particle_radius)/(cathode_diffusion_coefficient)];
 
             % A,B matrices for each electrode
             obj.solid_phase_matrices.A_n = M1_n - M2_n*(N2\N1);
@@ -319,10 +317,10 @@ classdef SPMe < handle
 
 
             % Compute exchange current density
-            i_0n = k_n * ((obj.cell_properties.c_s_n_max - c_ss_n) .* c_ss_n .* c_e_n).^obj.cell_properties.charge_transfer_coefficient;
-            di_0n = k_n * (obj.cell_properties.charge_transfer_coefficient*((obj.cell_properties.c_s_n_max - c_ss_n) .* c_ss_n .* c_e_n).^(obj.cell_properties.charge_transfer_coefficient-1).*( c_e_n.*(obj.cell_properties.c_s_n_max - c_ss_n) -  c_ss_n .* c_e_n) );
-            i_0p = k_p * ((obj.cell_properties.c_s_p_max - c_ss_p) .* c_ss_p .* c_e_p).^obj.cell_properties.charge_transfer_coefficient;
-            di_0p = k_p * (obj.cell_properties.charge_transfer_coefficient*(max((obj.cell_properties.c_s_p_max - c_ss_p),0) .* c_ss_p .* c_e_p).^(obj.cell_properties.charge_transfer_coefficient-1).*( c_e_p.*(obj.cell_properties.c_s_p_max - c_ss_p) -  c_ss_p .* c_e_p) );
+            i_0n = k_n * ((obj.cell_properties.anode.maximum_concentration - c_ss_n) .* c_ss_n .* c_e_n).^obj.cell_properties.charge_transfer_coefficient;
+            di_0n = k_n * (obj.cell_properties.charge_transfer_coefficient*((obj.cell_properties.anode.maximum_concentration - c_ss_n) .* c_ss_n .* c_e_n).^(obj.cell_properties.charge_transfer_coefficient-1).*( c_e_n.*(obj.cell_properties.anode.maximum_concentration - c_ss_n) -  c_ss_n .* c_e_n) );
+            i_0p = k_p * ((obj.cell_properties.cathode.maximum_concentration - c_ss_p) .* c_ss_p .* c_e_p).^obj.cell_properties.charge_transfer_coefficient;
+            di_0p = k_p * (obj.cell_properties.charge_transfer_coefficient*(max((obj.cell_properties.cathode.maximum_concentration - c_ss_p),0) .* c_ss_p .* c_e_p).^(obj.cell_properties.charge_transfer_coefficient-1).*( c_e_p.*(obj.cell_properties.cathode.maximum_concentration - c_ss_p) -  c_ss_p .* c_e_p) );
 
             if(nargout > 2)
                 varargout{1}=di_0n;
