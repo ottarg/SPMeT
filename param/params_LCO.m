@@ -11,87 +11,62 @@
 function p = params_LCO()
     %% Geometric Params
     % Thickness of each layer
-    p.L_n = 100e-6;     % Thickness of negative electrode [m]
-    p.L_s = 25e-6;     % Thickness of separator [m]
-    p.L_p = 100e-6;     % Thickness of positive electrode [m]
-    
-    L_ccn = 25e-6;    % Thickness of negative current collector [m]
-    L_ccp = 25e-6;    % Thickness of negative current collector [m]
-    
+    p.anode.electrode_thickness = 100e-6;
+    p.separator.thickness = 25e-6;
+    p.cathode.electrode_thickness = 100e-6;
+
     % Particle Radii
-    p.R_s_n = 10e-6;   % Radius of solid particles in negative electrode [m]
-    p.R_s_p = 10e-6;   % Radius of solid particles in positive electrode [m]
+    p.anode.particle_radius = 10e-6;   % Radius of solid particles in negative electrode [m]
+    p.cathode.particle_radius = 10e-6;   % Radius of solid particles in positive electrode [m]
     
     % Volume fractions
-    p.epsilon_s_n = 0.6;      % Volume fraction in solid for neg. electrode
-    p.epsilon_s_p = 0.5;      % Volume fraction in solid for pos. electrode
+    p.anode.volume_fraction_solid = 0.6;      % Volume fraction in solid for neg. electrode
+    p.cathode.volume_fraction_solid = 0.5;      % Volume fraction in solid for pos. electrode
     
-    p.epsilon_e_n = 0.3;   % Volume fraction in electrolyte for neg. electrode
-    p.epsilon_e_s = 1.0;   % Volume fraction in electrolyte for separator
-    p.epsilon_e_p = 0.3;   % Volume fraction in electrolyte for pos. electrode
+    p.anode.volume_fraction_electrolyte = 0.3;   % Volume fraction in electrolyte for neg. electrode
+    p.separator.volume_fraction_electrolyte = 1.0;   % Volume fraction in electrolyte for separator
+    p.cathode.volume_fraction_electrolyte = 0.3;   % Volume fraction in electrolyte for pos. electrode
     
-    % make element to caclulate phi_{s} by Saehong Park 
-    p.epsilon_f_n = 1-p.epsilon_s_n-p.epsilon_e_n;  % Volume fraction of filler in neg. electrode
-    p.epsilon_f_p = 1-p.epsilon_s_p-p.epsilon_e_p;  % Volume fraction of filler in pos. electrode
-    
-    epsilon_f_n = p.epsilon_f_n;  % Volume fraction of filler in neg. electrode
-    epsilon_f_p = p.epsilon_f_p;  % Volume fraction of filler in pos. electrode
-    
-    
+    % make element to calculate phi_{s} by Saehong Park 
+    p.anode.volume_fraction_filler = 1-p.anode.volume_fraction_solid-p.anode.volume_fraction_electrolyte;  % Volume fraction of filler in neg. electrode
+    p.cathode.volume_fraction_filler = 1-p.cathode.volume_fraction_solid-p.cathode.volume_fraction_electrolyte;  % Volume fraction of filler in pos. electrode
+        
     % Specific interfacial surface area
-    p.a_s_n = 3*p.epsilon_s_n / p.R_s_n;  % Negative electrode [m^2/m^3]
-    p.a_s_p = 3*p.epsilon_s_p / p.R_s_p;  % Positive electrode [m^2/m^3]
-    
-    % Mass densities
-    rho_sn = 1800;    % Solid phase in negative electrode [kg/m^3]
-    rho_sp = 5010;    % Solid phase in positive electrode [kg/m^3]
-    rho_e =  1324;    % Electrolyte [kg/m^3]
-    rho_f = 1800;     % Filler [kg/m^3]
-    rho_ccn = 8954;   % Current collector in negative electrode
-    rho_ccp = 2707;   % Current collector in positive electrode
-    
-    % Compute cell mass [kg/m^2]
-    m_n = p.L_n * (rho_e*p.epsilon_e_n + rho_sn*p.epsilon_s_n + rho_f*epsilon_f_n);
-    m_s = p.L_s * (rho_e*p.epsilon_e_n);
-    m_p = p.L_p * (rho_e*p.epsilon_e_p + rho_sp*p.epsilon_s_p + rho_f*epsilon_f_p);
-    m_cc = rho_ccn*L_ccn + rho_ccp*L_ccp;
-    
-    % Lumped density [kg/m^2]
-    p.rho_avg = m_n + m_s + m_p + m_cc;
+    p.anode.specific_interfacial_area = 3*p.anode.volume_fraction_solid / p.anode.particle_radius;  % Negative electrode [m^2/m^3]
+    p.cathode.specific_interfacial_area = 3*p.cathode.volume_fraction_solid / p.cathode.particle_radius;  % Positive electrode [m^2/m^3]
     
     %% Transport Params
     % Diffusion coefficient in solid
-    p.D_s_n0 = 3.9e-14;  % Diffusion coeff for solid in neg. electrode, [m^2/s]
-    p.D_s_p0 = 1e-13;  % Diffusion coeff for solid in pos. electrode, [m^2/s]
+    p.anode.diffusion_coefficient = 3.9e-14;  % Diffusion coeff for solid in neg. electrode, [m^2/s]
+    p.cathode.diffusion_coefficient = 1e-13;  % Diffusion coeff for solid in pos. electrode, [m^2/s]
     
-    p.brug = 1.5;       % Bruggeman porosity
+    p.bruggemann_porosity = 1.5;       % Bruggeman porosity
     
-    % Conductivity of solid
-    p.sig_n = 100;    % Conductivity of solid in neg. electrode, [1/Ohms*m]
-    p.sig_p = 10;    % Conductivity of solid in pos. electrode, [1/Ohms*m]
-    
+%     % Conductivity of solid
+%     p.anode.solid_conductivity = 100;    % Conductivity of solid in neg. electrode, [1/Ohms*m]
+%     p.cathode.solid_conductivity = 10;    % Conductivity of solid in pos. electrode, [1/Ohms*m]
+%     
     % Miscellaneous
     p.t_plus = 0.4;       % Transference number
-%     p.Faraday = 96485.33289;    % Faraday's constant, [Coulumbs/mol]
-    p.Area = 1;           % Electrode current collector area [m^2]
+    p.electrode_area = 1;           % Electrode current collector area [m^2]
     
     %% Kinetic Params
-    p.R = 8.314472;       % Gas constant, [J/mol-K]
+%     p.gas_constant = 8.314472;       % Gas constant, [J/mol-K]
     
-    p.alph = 0.5;         % Charge transfer coefficients
+    p.charge_transfer_coefficient = 0.5; % Charge transfer coefficients
     
-    p.R_f_n = 1e-3;       % Resistivity of SEI layer, [Ohms*m^2]
-    p.R_f_p = 0;       % Resistivity of SEI layer, [Ohms*m^2]
-    p.R_c = 0;         % Contact Resistance/Current Collector Resistance, [Ohms-m^2]
+    p.anode.sei_resistivity = 1e-3;    % Resistivity of SEI layer, [Ohms*m^2]
+    p.cathode.sei_resistivity = 0;     % Resistivity of SEI layer, [Ohms*m^2]
+    p.non_jellyroll_resistance = 0;         % Contact Resistance/Current Collector Resistance, [Ohms-m^2]
     
     % Nominal Reaction rates
-    p.k_n0 = 1e-5;  % Reaction rate in neg. electrode, [(A/m^2)*(mol^3/mol)^(1+alpha)]
-    p.k_p0 = 3e-7; % Reaction rate in pos. electrode, [(A/m^2)*(mol^3/mol)^(1+alpha)]
+    p.anode.reaction_rate = 1e-5;  % Reaction rate in neg. electrode, [(A/m^2)*(mol^3/mol)^(1+alpha)]
+    p.cathode.reaction_rate = 3e-7; % Reaction rate in pos. electrode, [(A/m^2)*(mol^3/mol)^(1+alpha)]
     
     %% Thermodynamic Params
     
     % Ambient Temperature
-    p.T_amb = 298.15; % [K]
+    p.ambient_temperature = 298.15; % [K]
     
     % Activation Energies
     % Taken from Zhang et al (2014) [Harbin]
@@ -105,7 +80,7 @@ function p = params_LCO()
     p.E.kappa_e = 34.70e3;
     
     % Reference temperature
-    p.T_ref = 298.15; %[K]
+    p.nominal_temperature = 298.15; %[K]
     
     % Heat transfer parameters
     % Taken from Zhang et al (2014) [Harbin]
