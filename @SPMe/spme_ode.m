@@ -3,7 +3,7 @@ function [x_dot,varargout] = spme_ode(obj,t,x,data)
 %% Parse Input Data
 
 % Parse and interpolate current
-cur = interp1(data.time,data.cur,t,[]);
+cur = interp1(data.time,data.cur(1:length(data.time)),t,[]);
 
 % Parse states
 anode_solid_concentration = x(1:(obj.discretization.Nr-1));

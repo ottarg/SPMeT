@@ -159,19 +159,17 @@ classdef SPMe < handle
             obj.x0 = [c_n0; c_p0; ce0; T10; T20; delta_sei0];
 
         end
-        function res = simulate(obj)
-            load('input-data/UDDS');
+        function res = simulate(obj,time,current)
+            res.time = time;
+            res.cur = -current'/obj.cell_properties.electrode_area*10;
+            obj.discretization.delta_t = res.time(2)-res.time(1);
+            Opt    = odeset('Events',@(t,x)myEvent(t,x,obj,res));
 
-            I = -current_exp'/obj.cell_properties.electrode_area*10;
-            t = time_exp';
-            obj.discretization.delta_t = t(2)-t(1);
-            data.time = t;
-            data.cur = I;
-            [t,x] = ode23s(@(t,x) spme_ode(obj,t,x,data),t,obj.x0);
-            for k = 1:length(t)
+            [res.time,x] = ode23s(@(t,x) spme_ode(obj,t,x,res),res.time,obj.x0,Opt);
+            for k = 1:length(res.time/5)
                 % Compute outputs
                 [~,res.V(k),res.V_spm(k),res.SOC_n(k),res.SOC_p(k),res.c_ss_n(k),res.c_ss_p(k),res.c_e(:,k)] = ...
-                    spme_ode(obj,t(k),x(k,:)',data);
+                    spme_ode(obj,res.time(k),x(k,:)',res);
             end
 
         end
@@ -291,11 +289,11 @@ classdef SPMe < handle
 
         function [Uref] = refPotentialAnode(obj,theta)
 
-            if(~isreal(theta))
-                beep;
-                error('dfn:err','Complex theta_n');
+%             if(~isreal(theta))
+%                 beep;
+%                 error('dfn:err','Complex theta_n');
                 %     pause;
-            end
+%             end
 
             % DUALFOIL: MCMB 2528 graphite (Bellcore) 0.01 < x < 0.9
             Uref = 0.194+1.5*exp(-120.0*theta) ...

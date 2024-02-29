@@ -15,6 +15,13 @@ model.discretization.delta_x_s = 1 / model.discretization.Nxs;
 model.discretization.delta_x_p = 1 / model.discretization.Nxp;
 
 
-model.initial_voltage = 3.8;
+model.initial_voltage = 3.93247;
 model.initialize
-res = model.simulate;
+data = load('input-data/UDDS');
+
+res = model.simulate(data.time,data.current);
+
+figure
+plot(res.time,res.V)
+hold on
+plot(data.time,data.voltage)
