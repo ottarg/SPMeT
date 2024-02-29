@@ -35,8 +35,8 @@ classdef SPMe < handle
                 theta_p = x(idx)/obj.cell_properties.cathode.maximum_concentration;
                 theta_n = (obj.cell_properties.total_moles_lithium-obj.cell_properties.cathode.volume_fraction_solid*obj.cell_properties.cathode.electrode_thickness*obj.cell_properties.electrode_area*x(idx))/(obj.cell_properties.anode.maximum_concentration*obj.cell_properties.anode.volume_fraction_solid*obj.cell_properties.anode.electrode_thickness*obj.cell_properties.electrode_area);
 
-                OCPn = refPotentialAnode(obj.cell_properties,theta_n);
-                OCPp = refPotentialCathode(obj.cell_properties,theta_p);
+                OCPn = refPotentialAnode(obj,theta_n);
+                OCPp = refPotentialCathode(obj,theta_p);
 
                 f(idx) = OCPp - OCPn - V;
 
