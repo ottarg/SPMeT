@@ -38,7 +38,7 @@ classdef SPMe < handle
 
         function [res,x] = simulate(obj,time,current)
             res.time = time;
-            res.cur = -current/obj.cell_properties.electrode_area*10;
+            res.current = -current/obj.cell_properties.electrode_area*10;
             obj.discretization.delta_t = res.time(2)-res.time(1);
             Opt    = odeset('Events',@(t,x)detectImagSolution(obj,t,x,res));
 

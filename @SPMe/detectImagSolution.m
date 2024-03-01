@@ -1,7 +1,7 @@
 function [value, isterminal, direction] = detectImagSolution(obj, t, x, data)
 
 % Parse and interpolate current
-cur = interp1(data.time,data.cur(1:length(data.time)),t,[]);
+current = interp1(data.time,data.current(1:length(data.time)),t,[]);
 
 % Parse states
 anode_solid_concentration = x(1:(obj.discretization.Nr-1));
@@ -15,8 +15,8 @@ delta_sei = x(end);
 
 %%% MOLAR FLUXES
 % Compute total molar flux
-jn_tot = cur/(faraday*obj.cell_properties.anode.specific_interfacial_area*obj.cell_properties.electrode_area*obj.cell_properties.anode.electrode_thickness);
-jp_tot = -cur/(faraday*obj.cell_properties.cathode.specific_interfacial_area*obj.cell_properties.electrode_area*obj.cell_properties.cathode.electrode_thickness);
+jn_tot = current/(faraday*obj.cell_properties.anode.specific_interfacial_area*obj.cell_properties.electrode_area*obj.cell_properties.anode.electrode_thickness);
+jp_tot = -current/(faraday*obj.cell_properties.cathode.specific_interfacial_area*obj.cell_properties.electrode_area*obj.cell_properties.cathode.electrode_thickness);
 
 %%% SOLID PHASE DYNAMICS
 % Solid phase diffusivity temperature dependence
