@@ -59,6 +59,8 @@ classdef SPMe < handle
     end
 
     methods (Static)
+        F = F
+        R = R
         [Uref] = refPotentialCathode(theta)
         [Uref] = refPotentialAnode(theta)
         [kappa,varargout] = electrolyteCond(c_e)
