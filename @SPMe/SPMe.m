@@ -27,13 +27,13 @@ classdef SPMe < handle
             % Electrolyte concentration
             ce0 = obj.cell_properties.electrolyte_concentration*ones(obj.discretization.Nxn+obj.discretization.Nxs+obj.discretization.Nxp - 3,1);
             % Temperature
-            T10 = obj.cell_properties.ambient_temperature;
-            T20 = obj.cell_properties.ambient_temperature;
+%             T10 = obj.cell_properties.ambient_temperature;
+%             T20 = obj.cell_properties.ambient_temperature;
             % SEI layer
             delta_sei0 = 0;
 
             initialize_electrolyte_matrices(obj);
-            obj.x0 = [c_n0; c_p0; ce0; T10; T20; delta_sei0];
+            obj.x0 = [c_n0; c_p0; ce0; delta_sei0];
         end
 
         function [res,x] = simulate(obj,time,current,temperature)
