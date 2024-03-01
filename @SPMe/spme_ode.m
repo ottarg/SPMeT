@@ -60,9 +60,9 @@ mean_electrolyte_concentration_separator = mean(c_ex((obj.discretization.Nxn+1):
 mean_electrolyte_concentration_cathode = mean(c_ex((obj.discretization.Nxn+obj.discretization.Nxs+1):(obj.discretization.Nxn+obj.discretization.Nxs+obj.discretization.Nxp+1),:));
 
 % Overpotentials due to electrolyte subsystem
-nominal_electrolyte_conductivity_anode = electrolyteCond(mean_electrolyte_concentration_anode);
-nominal_electrolyte_conductivity_separator = electrolyteCond(mean_electrolyte_concentration_separator);
-nominal_electrolyte_conductivity_cathode = electrolyteCond(mean_electrolyte_concentration_cathode);
+nominal_electrolyte_conductivity_anode = SPMe().electrolyteCond(mean_electrolyte_concentration_anode);
+nominal_electrolyte_conductivity_separator = SPMe().electrolyteCond(mean_electrolyte_concentration_separator);
+nominal_electrolyte_conductivity_cathode = SPMe().electrolyteCond(mean_electrolyte_concentration_cathode);
 
 % Adjustment for Arrhenius temperature dependence
 electrolyte_conductivity_anode = nominal_electrolyte_conductivity_anode * exp(obj.cell_properties.E.kappa_e/gas_constant*(1/obj.cell_properties.nominal_temperature - 1/T1));

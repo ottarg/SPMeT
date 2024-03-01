@@ -54,12 +54,13 @@ classdef SPMe < handle
         initialize_solid_phase_matrices(obj,anode_diffusion_coefficient,cathode_diffusion_coefficient)
         [dActivity,varargout] = electrolyteAct(obj,c_e,T)
         [i_0n,i_0p,varargout] = exch_cur_dens(obj,k_p,k_n,c_ss_n,c_ss_p,c_e)
-
+        
     end
 
     methods (Static)
         [Uref] = refPotentialCathode(theta)
         [Uref] = refPotentialAnode(theta)
+        [kappa,varargout] = electrolyteCond(c_e)
     end
 
 end
