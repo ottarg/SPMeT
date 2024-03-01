@@ -1,4 +1,4 @@
-function [value, isterminal, direction] = myEvent(t, x,obj, data)
+function [value, isterminal, direction] = detectImagSolution(obj, t, x, data)
 
 % Parse and interpolate current
 cur = interp1(data.time,data.cur(1:length(data.time)),t,[]);

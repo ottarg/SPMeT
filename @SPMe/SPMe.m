@@ -40,7 +40,7 @@ classdef SPMe < handle
             res.time = time;
             res.cur = -current/obj.cell_properties.electrode_area*10;
             obj.discretization.delta_t = res.time(2)-res.time(1);
-            Opt    = odeset('Events',@(t,x)myEvent(t,x,obj,res));
+            Opt    = odeset('Events',@(t,x)detectImagSolution(obj,t,x,res));
 
             [res.time,x] = ode23s(@(t,x) spme_ode(obj,t,x,res),[res.time(1),res.time(end)],obj.x0,Opt);
             for k = 1:length(res.time)
@@ -49,6 +49,7 @@ classdef SPMe < handle
                     spme_ode(obj,res.time(k),x(k,:)',res);
             end
         end
+        [value, isterminal, direction] = detectImagSolution(obj, t, x, data)
         [csn0,csp0] = initial_solid_concentrations(obj,V)
         initialize_electrolyte_matrices(obj)
         initialize_solid_phase_matrices(obj,anode_diffusion_coefficient,cathode_diffusion_coefficient)
@@ -61,6 +62,7 @@ classdef SPMe < handle
         [Uref] = refPotentialCathode(theta)
         [Uref] = refPotentialAnode(theta)
         [kappa,varargout] = electrolyteCond(c_e)
+        [D_e,varargout] = electrolyteDe(c_e)
     end
 
 end

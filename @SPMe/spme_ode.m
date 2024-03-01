@@ -158,9 +158,9 @@ c_s_p_dot = obj.solid_phase_matrices.A_p*cathode_solid_concentration + obj.solid
 %% Electrolyte Dynamics
 
 % Compute Electrolyte Diffusion Coefficient and Derivative
-[D_en0,dD_en0] = electrolyteDe(c_en);
-[D_es0,dD_es0] = electrolyteDe(c_es);
-[D_ep0,dD_ep0] = electrolyteDe(c_ep);
+[D_en0,dD_en0] = SPMe().electrolyteDe(c_en);
+[D_es0,dD_es0] = SPMe().electrolyteDe(c_es);
+[D_ep0,dD_ep0] = SPMe().electrolyteDe(c_ep);
 
 % Adjustment for Arrhenius temperature dependence
 Arrh_De = exp(obj.cell_properties.E.De/gas_constant*(1/obj.cell_properties.nominal_temperature - 1/T1));
