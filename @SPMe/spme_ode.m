@@ -88,25 +88,28 @@ theta_n = anode_solid_surface_concentration / obj.cell_properties.anode.maximum_
 theta_p = cathode_solid_surface_concentration / obj.cell_properties.cathode.maximum_concentration;
 
 % Equilibrium Potential
-Unref = refPotentialAnode(obj,theta_n);
-Upref = refPotentialCathode(obj,theta_p);
-
+anode_reference_potential = refPotentialAnode(obj,theta_n);
+cathode_reference_potential = refPotentialCathode(obj,theta_p);
+OCV = cathode_reference_potential - anode_reference_potential;
 % Exchange current density
 c_e_bar = [mean_electrolyte_concentration_anode; mean_electrolyte_concentration_separator; mean_electrolyte_concentration_cathode];
 [i_0n,i_0p] = exch_cur_dens(obj,cathode_reaction_rate,anode_reaction_rate,anode_solid_surface_concentration,cathode_solid_surface_concentration,c_e_bar);
 % Overpotentials
 RTaF=(gas_constant*T1)/(obj.cell_properties.charge_transfer_coefficient*faraday);
-eta_n = RTaF * asinh(cur / (2*obj.cell_properties.anode.specific_interfacial_area*obj.cell_properties.electrode_area*obj.cell_properties.anode.electrode_thickness*i_0n(1)));
-eta_p = RTaF * asinh(-cur / (2*obj.cell_properties.cathode.specific_interfacial_area*obj.cell_properties.electrode_area*obj.cell_properties.cathode.electrode_thickness*i_0p(end)));
+anode_overpotential = RTaF * asinh(cur / (2*obj.cell_properties.anode.specific_interfacial_area*obj.cell_properties.electrode_area*obj.cell_properties.anode.electrode_thickness*i_0n(1)));
+cathode_overpotential = RTaF * asinh(-cur / (2*obj.cell_properties.cathode.specific_interfacial_area*obj.cell_properties.electrode_area*obj.cell_properties.cathode.electrode_thickness*i_0p(end)));
 
 % Total resistance (film + growing SEI layer)
 anode_resistivity = obj.cell_properties.anode.sei_resistivity + delta_sei/obj.cell_properties.side_reaction_product.conductivity;
+anode_resistance = anode_resistivity/(obj.cell_properties.anode.specific_interfacial_area*obj.cell_properties.anode.electrode_thickness*obj.cell_properties.electrode_area);
 cathode_resistivity = obj.cell_properties.cathode.sei_resistivity + 0;
-
-
+cathode_resistance = cathode_resistivity/(obj.cell_properties.cathode.specific_interfacial_area*obj.cell_properties.cathode.electrode_thickness*obj.cell_properties.electrode_area);
+electrode_resistance = anode_resistance + cathode_resistance;
 % SPM Voltage (i.e. w/o electrolyte concentration terms)
-V_noVCE = eta_p - eta_n + Upref - Unref ...
-    - (anode_resistivity/(obj.cell_properties.anode.specific_interfacial_area*obj.cell_properties.anode.electrode_thickness*obj.cell_properties.electrode_area) + cathode_resistivity/(obj.cell_properties.cathode.specific_interfacial_area*obj.cell_properties.cathode.electrode_thickness*obj.cell_properties.electrode_area))*cur;
+anode_potential = anode_overpotential + anode_reference_potential;
+cathode_potential = cathode_overpotential + cathode_reference_potential;
+V_noVCE = cathode_potential - anode_potential - electrode_resistance*cur;
+% cathode_overpotential - anode_overpotential + cathode_reference_potential - anode_reference_potential - (anode_resistance + cathode_resistance)*cur;
 
 % Overpotential due to electrolyte conductivity
 V_electrolyteCond = (obj.cell_properties.anode.electrode_thickness/(2*kap_n_eff) + 2*obj.cell_properties.separator.thickness/(2*kap_s_eff) + obj.cell_properties.cathode.electrode_thickness/(2*kap_p_eff))*cur;
@@ -131,7 +134,7 @@ V = V_noVCE + V_electrolyteCond + V_electrolytePolar;
 %   NOTE2: We assume this submodel only applies to anode
 
 % Difference btw solid and electrolyte overpotential [V]
-phi_se = eta_n + Unref + faraday*anode_resistivity*jn_tot;
+phi_se = anode_overpotential + anode_reference_potential + faraday*anode_resistivity*jn_tot;
 
 % Side rxn overpotential [V]
 eta_s = phi_se - obj.cell_properties.side_reaction_product.reference_potential - faraday*anode_resistivity * jn_tot;
@@ -203,9 +206,9 @@ SOC_p = 3/obj.cell_properties.cathode.maximum_concentration * trapz(r_vec,r_vec.
 % Equilibrium potentials
 [Unb] = refPotentialAnode(obj, SOC_n);
 [Upb] = refPotentialCathode(obj, SOC_p);
-
+OCV = Upb - Unb;
 % Heat generation
-Qdot = -cur*(V - (Upb - Unb));
+Qdot = -cur*(V - OCV);
 
 % Differential equations
 T1_dot = (obj.cell_properties.thermal.h12 * (T2-T1) + Qdot) / obj.cell_properties.thermal.C1;
@@ -222,4 +225,8 @@ varargout{4} = SOC_p;
 varargout{5} = anode_solid_surface_concentration;
 varargout{6} = cathode_solid_surface_concentration;
 varargout{7} = c_ex';
+varargout{8} = OCV;
+varargout{9} = anode_potential;
+varargout{10} = cathode_potential;
+
 end

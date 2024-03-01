@@ -51,7 +51,7 @@ function p = params_LCO()
     
     p.anode.sei_resistivity = 1e-3;    % Resistivity of SEI layer, [Ohms*m^2]
     p.cathode.sei_resistivity = 0;     % Resistivity of SEI layer, [Ohms*m^2]
-    p.non_jellyroll_resistance = 0;         % Contact Resistance/Current Collector Resistance, [Ohms-m^2]
+%     p.non_jellyroll_resistance = 2e-3;         % Contact Resistance/Current Collector Resistance, [Ohms-m^2]
     
     % Nominal Reaction rates
     p.anode.reaction_rate = 1e-5;  % Reaction rate in neg. electrode, [(A/m^2)*(mol^3/mol)^(1+alpha)]
@@ -102,7 +102,7 @@ function p = params_LCO()
     p.anode.maximum_concentration = 3.6e3 *1.5* 372 * 1800 / faraday;   % Max concentration in anode, [mol/m^3]
     p.cathode.maximum_concentration = 3.6e3 *1.5* 274 * 3010 / faraday;    % Max concentration in cathode, [mol/m^3]
 %     p.anode.maximum_concentration / p.cathode.maximum_concentration 
-    p.total_moles_lithium = 1.78;        % Total moles of lithium in solid phase [mol]
+    p.total_moles_lithium = 2;        % Total moles of lithium in solid phase [mol]
     p.electrolyte_concentration = 1e3;              % Fixed electrolyte concentration for SPM, [mol/m^3]
     
     %% Cutoff voltages

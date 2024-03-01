@@ -15,133 +15,9 @@ classdef SPMe < handle
     methods
         function obj = SPMe()
         end
-        function  [csn0,csp0] = initial_solid_concentrations(obj,V)
-            %% Use Bisection Algorithm
-
-            % Algorithm params
-            maxiters = 50;
-            x = zeros(maxiters,1);
-            f = nan*ones(maxiters,1);
-            tol = 1e-5;
-
-            % Initial Guesses
-            x_low = 0.05 * obj.cell_properties.cathode.maximum_concentration;
-            x_high = 1.0 * obj.cell_properties.cathode.maximum_concentration;
-            x(1) = 0.6 * obj.cell_properties.cathode.maximum_concentration;
-
-            % Iterate Bisection Algorithm
-            for idx = 1:maxiters
-
-                theta_p = x(idx)/obj.cell_properties.cathode.maximum_concentration;
-                theta_n = (obj.cell_properties.total_moles_lithium-obj.cell_properties.cathode.volume_fraction_solid*obj.cell_properties.cathode.electrode_thickness*obj.cell_properties.electrode_area*x(idx))/(obj.cell_properties.anode.maximum_concentration*obj.cell_properties.anode.volume_fraction_solid*obj.cell_properties.anode.electrode_thickness*obj.cell_properties.electrode_area);
-
-                OCPn = refPotentialAnode(obj,theta_n);
-                OCPp = refPotentialCathode(obj,theta_p);
-
-                f(idx) = OCPp - OCPn - V;
-
-                if(abs(f(idx)) <= tol)
-                    break;
-                elseif(f(idx) <= 0)
-                    x_high = x(idx);
-                else
-                    x_low = x(idx);
-                end
-
-                % Bisection
-                x(idx+1) = (x_high + x_low)/2;
-%                 x(idx+1) = x(idx+1)/obj.cell_properties.cathode.maximum_concentration;
-
-            end
-
-            % Output conveged csp0
-            csp0 = x(idx);
-            csn0 = (obj.cell_properties.total_moles_lithium - obj.cell_properties.cathode.volume_fraction_solid * obj.cell_properties.cathode.electrode_thickness * obj.cell_properties.electrode_area * csp0) / (obj.cell_properties.anode.volume_fraction_solid * obj.cell_properties.anode.electrode_thickness * obj.cell_properties.electrode_area);
-        end
-        function initialize_electrolyte_matrices(obj)
-
-            %% Lumped Coefficients
-            Del_xn = obj.cell_properties.anode.electrode_thickness * obj.discretization.delta_x_n;
-            Del_xs = obj.cell_properties.separator.thickness * obj.discretization.delta_x_s;
-            Del_xp = obj.cell_properties.cathode.electrode_thickness * obj.discretization.delta_x_p;
-
-            %% Matrices in nonlinear dynamics
-            obj.electrolyte_matrices.M1n = sparse((diag(ones(obj.discretization.Nxn-2,1),+1) - diag(ones(obj.discretization.Nxn-2,1),-1))/(2*Del_xn));
-            obj.electrolyte_matrices.M1s = sparse((diag(ones(obj.discretization.Nxs-2,1),+1) - diag(ones(obj.discretization.Nxs-2,1),-1))/(2*Del_xs));
-            obj.electrolyte_matrices.M1p = sparse((diag(ones(obj.discretization.Nxp-2,1),+1) - diag(ones(obj.discretization.Nxp-2,1),-1))/(2*Del_xp));
-
-
-            M2n = zeros(obj.discretization.Nxn-1,2);
-            M2n(1,1) = -1/(2*Del_xn);
-            M2n(end,end) = 1/(2*Del_xn);
-            obj.electrolyte_matrices.M2n = sparse(M2n);
-
-            M2s = zeros(obj.discretization.Nxs-1,2);
-            M2s(1,1) = -1/(2*Del_xs);
-            M2s(end,end) = 1/(2*Del_xs);
-            obj.electrolyte_matrices.M2s = sparse(M2s);
-
-            M2p = zeros(obj.discretization.Nxp-1,2);
-            M2p(1,1) = -1/(2*Del_xp);
-            M2p(end,end) = 1/(2*Del_xp);
-            obj.electrolyte_matrices.M2p = sparse(M2p);
-
-
-            obj.electrolyte_matrices.M3n = sparse((-2*diag(ones(obj.discretization.Nxn-1,1),0) + diag(ones(obj.discretization.Nxn-2,1),+1) + diag(ones(obj.discretization.Nxn-2,1),-1))/(Del_xn^2));
-            obj.electrolyte_matrices.M3s = sparse((-2*diag(ones(obj.discretization.Nxs-1,1),0) + diag(ones(obj.discretization.Nxs-2,1),+1) + diag(ones(obj.discretization.Nxs-2,1),-1))/(Del_xs^2));
-            obj.electrolyte_matrices.M3p = sparse((-2*diag(ones(obj.discretization.Nxp-1,1),0) + diag(ones(obj.discretization.Nxp-2,1),+1) + diag(ones(obj.discretization.Nxp-2,1),-1))/(Del_xp^2));
-
-
-            M4n = zeros(obj.discretization.Nxn-1,2);
-            M4n(1,1) = 1/(Del_xn^2);
-            M4n(end,end) = 1/(Del_xn^2);
-            obj.electrolyte_matrices.M4n = sparse(M4n);
-
-            M4s = zeros(obj.discretization.Nxs-1,2);
-            M4s(1,1) = 1/(Del_xs^2);
-            M4s(end,end) = 1/(Del_xs^2);
-            obj.electrolyte_matrices.M4s = sparse(M4s);
-
-            M4p = zeros(obj.discretization.Nxp-1,2);
-            M4p(1,1) = 1/(Del_xp^2);
-            M4p(end,end) = 1/(Del_xp^2);
-            obj.electrolyte_matrices.M4p = sparse(M4p);
-
-            obj.electrolyte_matrices.M5n = (1-obj.cell_properties.t_plus)*obj.cell_properties.anode.specific_interfacial_area/obj.cell_properties.anode.volume_fraction_electrolyte * speye(obj.discretization.Nxn-1);
-            obj.electrolyte_matrices.M5p = (1-obj.cell_properties.t_plus)*obj.cell_properties.cathode.specific_interfacial_area/obj.cell_properties.cathode.volume_fraction_electrolyte * speye(obj.discretization.Nxp-1);
-
-            %% Boundary Conditions
-            N1 = zeros(4,obj.discretization.Nx-3);
-            N2 = zeros(4);
-
-            % BC1
-            N1(1,1) = +4;
-            N1(1,2) = -1;
-            N2(1,1) = -3;
-
-            % BC2
-            N1(2,obj.discretization.Nxn-2) = (obj.cell_properties.anode.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xn);
-            N1(2,obj.discretization.Nxn-1) = (-4*obj.cell_properties.anode.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xn);
-            N2(2,2) = (3*obj.cell_properties.anode.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xn) + (3*obj.cell_properties.separator.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xs);
-            N1(2,obj.discretization.Nxn) = (-4*obj.cell_properties.separator.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xs);
-            N1(2,obj.discretization.Nxn+1) = (obj.cell_properties.separator.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xs);
-
-            % BC3
-            N1(3,obj.discretization.Nxn+obj.discretization.Nxs-3) = (obj.cell_properties.separator.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xs);
-            N1(3,obj.discretization.Nxn+obj.discretization.Nxs-2) = (-4*obj.cell_properties.separator.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xs);
-            N2(3,3) = (3*obj.cell_properties.separator.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xs) + (3*obj.cell_properties.cathode.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xp);
-            N1(3,obj.discretization.Nxn+obj.discretization.Nxs-1) = (-4*obj.cell_properties.cathode.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xp);
-            N1(3,obj.discretization.Nxn+obj.discretization.Nxs) = (obj.cell_properties.cathode.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xp);
-
-
-            % BC4
-            N1(4,end-1) = +1;
-            N1(4,end) = -4;
-            N2(4,4) = +3;
-
-            %%% SPARSE OUTPUT
-            obj.electrolyte_matrices.C = sparse(-N2\N1);
-        end
+        [csn0,csp0] = initial_solid_concentrations(obj,V)
+        initialize_electrolyte_matrices(obj)
+        initialize_solid_phase_matrices(obj,anode_diffusion_coefficient,cathode_diffusion_coefficient)
         function initialize(obj)
             % Solid concentration
             [csn0,csp0] = obj.initial_solid_concentrations(obj.initial_voltage);
@@ -168,7 +44,7 @@ classdef SPMe < handle
             [res.time,x] = ode23s(@(t,x) spme_ode(obj,t,x,res),res.time,obj.x0,Opt);
             for k = 1:length(res.time/5)
                 % Compute outputs
-                [~,res.V(k),res.V_spm(k),res.SOC_n(k),res.SOC_p(k),res.c_ss_n(k),res.c_ss_p(k),res.c_e(:,k)] = ...
+                [~,res.V(k),res.V_spm(k),res.SOC_n(k),res.SOC_p(k),res.c_ss_n(k),res.c_ss_p(k),res.c_e(:,k),res.OCV(:,k),res.anode_potential(:,k),res.cathode_potential(:,k)] = ...
                     spme_ode(obj,res.time(k),x(k,:)',res);
             end
 
@@ -176,75 +52,7 @@ classdef SPMe < handle
 
         
 
-        function initialize_solid_phase_matrices(obj,anode_diffusion_coefficient,cathode_diffusion_coefficient)
-
-            % Electrochemical Model Parameters
-            alpha_n = anode_diffusion_coefficient / (obj.cell_properties.anode.particle_radius * obj.discretization.delta_r_n)^2;
-            alpha_p = cathode_diffusion_coefficient / (obj.cell_properties.cathode.particle_radius * obj.discretization.delta_r_p)^2;
-
-            % Block matrices
-            M1_n = zeros(obj.discretization.Nr-1);
-            M1_p = zeros(obj.discretization.Nr-1);
-
-            for idx = 1:(obj.discretization.Nr-1)
-
-                % Lower diagonal
-                if(idx ~= 1)
-                    M1_n(idx,idx-1) = (idx-1)/idx * alpha_n;
-                    M1_p(idx,idx-1) = (idx-1)/idx * alpha_p;
-                end
-
-                % Main diagonal
-                M1_n(idx,idx) = -2*alpha_n;
-                M1_p(idx,idx) = -2*alpha_p;
-
-                % Upper diagonal
-                if(idx ~= (obj.discretization.Nr-1))
-                    M1_n(idx,idx+1) = (idx+1)/idx * alpha_n;
-                    M1_p(idx,idx+1) = (idx+1)/idx * alpha_p;
-                end
-            end
-
-            M2_n = zeros(obj.discretization.Nr-1,2);
-            M2_p = zeros(obj.discretization.Nr-1,2);
-
-            M2_n(end,end) = obj.discretization.Nr/(obj.discretization.Nr-1) * alpha_n;
-            M2_p(end,end) = obj.discretization.Nr/(obj.discretization.Nr-1) * alpha_p;
-
-            N1 = zeros(2,obj.discretization.Nr-1);
-            % % 1st Order BCs
-            % N1(1,1) = 1;
-            % N1(end,end) = -1;
-            %
-            % N2 = diag([-1,1]);
-            %
-
-            % 2nd Order BCs
-            N1(1,1) = 4;
-            N1(1,2) = -1;
-            N1(2,end) = -4;
-            N1(2,end-1) = 1;
-
-            N2 = diag([-3,3]);
-
-            N3_n = [0; -(2*obj.discretization.delta_r_n * obj.cell_properties.anode.particle_radius)/(anode_diffusion_coefficient)];
-            N3_p = [0; -(2*obj.discretization.delta_r_p * obj.cell_properties.cathode.particle_radius)/(cathode_diffusion_coefficient)];
-
-            % A,B matrices for each electrode
-            obj.solid_phase_matrices.A_n = M1_n - M2_n*(N2\N1);
-            obj.solid_phase_matrices.A_p = M1_p - M2_p*(N2\N1);
-
-            obj.solid_phase_matrices.B_n = M2_n*(N2\N3_n);
-            obj.solid_phase_matrices.B_p = M2_p*(N2\N3_p);
-
-            % C,D matrices for each electrode
-            obj.solid_phase_matrices.C_n = -[0,1]*(N2\N1);
-            obj.solid_phase_matrices.C_p = -[0,1]*(N2\N1);
-
-            obj.solid_phase_matrices.D_n = [0,1]*(N2\N3_n);
-            obj.solid_phase_matrices.D_p = [0,1]*(N2\N3_p);
-
-        end
+       
         %% Electrolyte Activity Coefficient Function: dlnf/dln(c_e)
         %   Created Oct 25, 2016 by Saehong Park
 
