@@ -1,5 +1,7 @@
 clear
 close all
+
+
 model = SPMe;
 model.cell_properties = params_LCO;
 model.discretization.Nr = 30;
@@ -15,7 +17,6 @@ model.discretization.delta_x_s = 1 / model.discretization.Nxs;
 model.discretization.delta_x_p = 1 / model.discretization.Nxp;
 
 % data = load('input-data/UDDS');
-
 
 % model.initial_voltage = data.voltage(1);
 model.initial_voltage = 3.6;
