@@ -14,7 +14,8 @@ function p = params_LCO()
     p.anode.electrode_thickness = 100e-6;
     p.separator.thickness = 25e-6;
     p.cathode.electrode_thickness = 100e-6;
-
+    p.electrode_area = 1;           % Electrode current collector area [m^2]
+    
     % Particle Radii
     p.anode.particle_radius = 10e-6;   % Radius of solid particles in negative electrode [m]
     p.cathode.particle_radius = 10e-6;   % Radius of solid particles in positive electrode [m]
@@ -44,8 +45,7 @@ function p = params_LCO()
     
     % Miscellaneous
     p.t_plus = 0.4;       % Transference number
-    p.electrode_area = 1;           % Electrode current collector area [m^2]
-    
+
     %% Kinetic Params
     p.charge_transfer_coefficient = 0.5; % Charge transfer coefficients
     
@@ -70,7 +70,7 @@ function p = params_LCO()
     
     %% Thermodynamic Params
     % Ambient Temperature
-    p.ambient_temperature = 298.15; % [K]
+    p.ambient_temperature = 313.15; % [K]
     % Reference temperature
     p.nominal_temperature = 298.15; %[K]
     % Heat transfer parameters
@@ -78,8 +78,8 @@ function p = params_LCO()
     % http://dx.doi.org/10.1016/j.jpowsour.2014.07.110
     p.thermal.C1 = 62.7;    % [J/K]
     p.thermal.C2 = 4.5;     % [J/K]
-    p.thermal.h12 = 10; %1.9386; % [W/K]
-    p.thermal.h2a = 21.45;  % [W/K]
+    p.thermal.h12 = 1; %1.9386; % [W/K]
+    p.thermal.h2a = 2.145;  % [W/K]
     
     %% Aging submodel parameters
     
@@ -99,15 +99,15 @@ function p = params_LCO()
     % Maxima based on DUALFOIL 
     % line 588 in DUALFOIL Fortran code
     
-    p.anode.maximum_concentration = 3.6e3 * 372 * 1800 / faraday;   % Max concentration in anode, [mol/m^3]
-    p.cathode.maximum_concentration = 3.6e3 * 274 * 5010 / faraday;    % Max concentration in cathode, [mol/m^3]
-    
-    p.total_moles_lithium = 2.5; %2.781;        % Total moles of lithium in solid phase [mol]
+    p.anode.maximum_concentration = 3.6e3 *1.5* 372 * 1800 / faraday;   % Max concentration in anode, [mol/m^3]
+    p.cathode.maximum_concentration = 3.6e3 *1.5* 274 * 3010 / faraday;    % Max concentration in cathode, [mol/m^3]
+%     p.anode.maximum_concentration / p.cathode.maximum_concentration 
+    p.total_moles_lithium = 1.78;        % Total moles of lithium in solid phase [mol]
     p.electrolyte_concentration = 1e3;              % Fixed electrolyte concentration for SPM, [mol/m^3]
     
     %% Cutoff voltages
-    p.volt_max = 4.7; %4.1113;
-    p.volt_min = 3.105; %2.6;
+%     p.volt_max = 4.7; %4.1113;
+%     p.volt_min = 3.105; %2.6;
 
 end
 

@@ -100,13 +100,13 @@ eta_n = RTaF * asinh(cur / (2*obj.cell_properties.anode.specific_interfacial_are
 eta_p = RTaF * asinh(-cur / (2*obj.cell_properties.cathode.specific_interfacial_area*obj.cell_properties.electrode_area*obj.cell_properties.cathode.electrode_thickness*i_0p(end)));
 
 % Total resistance (film + growing SEI layer)
-anode_resistance = obj.cell_properties.anode.sei_resistivity + delta_sei/obj.cell_properties.side_reaction_product.conductivity;
-cathode_resistance = obj.cell_properties.cathode.sei_resistivity + 0;
+anode_resistivity = obj.cell_properties.anode.sei_resistivity + delta_sei/obj.cell_properties.side_reaction_product.conductivity;
+cathode_resistivity = obj.cell_properties.cathode.sei_resistivity + 0;
 
 
 % SPM Voltage (i.e. w/o electrolyte concentration terms)
 V_noVCE = eta_p - eta_n + Upref - Unref ...
-    - (anode_resistance/(obj.cell_properties.anode.specific_interfacial_area*obj.cell_properties.anode.electrode_thickness*obj.cell_properties.electrode_area) + cathode_resistance/(obj.cell_properties.cathode.specific_interfacial_area*obj.cell_properties.cathode.electrode_thickness*obj.cell_properties.electrode_area))*cur;
+    - (anode_resistivity/(obj.cell_properties.anode.specific_interfacial_area*obj.cell_properties.anode.electrode_thickness*obj.cell_properties.electrode_area) + cathode_resistivity/(obj.cell_properties.cathode.specific_interfacial_area*obj.cell_properties.cathode.electrode_thickness*obj.cell_properties.electrode_area))*cur;
 
 % Overpotential due to electrolyte conductivity
 V_electrolyteCond = (obj.cell_properties.anode.electrode_thickness/(2*kap_n_eff) + 2*obj.cell_properties.separator.thickness/(2*kap_s_eff) + obj.cell_properties.cathode.electrode_thickness/(2*kap_p_eff))*cur;
@@ -131,10 +131,10 @@ V = V_noVCE + V_electrolyteCond + V_electrolytePolar;
 %   NOTE2: We assume this submodel only applies to anode
 
 % Difference btw solid and electrolyte overpotential [V]
-phi_se = eta_n + Unref + faraday*anode_resistance*jn_tot;
+phi_se = eta_n + Unref + faraday*anode_resistivity*jn_tot;
 
 % Side rxn overpotential [V]
-eta_s = phi_se - obj.cell_properties.side_reaction_product.reference_potential - faraday*anode_resistance * jn_tot;
+eta_s = phi_se - obj.cell_properties.side_reaction_product.reference_potential - faraday*anode_resistivity * jn_tot;
 
 % Molar flux of side rxn [mol/s-m^2]
 j_s = -obj.cell_properties.side_reaction_product.exchange_current_density/faraday * exp((-obj.cell_properties.charge_transfer_coefficient*faraday)/(gas_constant*T1)*eta_s);

@@ -25,7 +25,7 @@ classdef SPMe < handle
             tol = 1e-5;
 
             % Initial Guesses
-            x_low = 0.2 * obj.cell_properties.cathode.maximum_concentration;
+            x_low = 0.05 * obj.cell_properties.cathode.maximum_concentration;
             x_high = 1.0 * obj.cell_properties.cathode.maximum_concentration;
             x(1) = 0.6 * obj.cell_properties.cathode.maximum_concentration;
 
@@ -50,7 +50,7 @@ classdef SPMe < handle
 
                 % Bisection
                 x(idx+1) = (x_high + x_low)/2;
-                x(idx+1)/obj.cell_properties.cathode.maximum_concentration;
+%                 x(idx+1) = x(idx+1)/obj.cell_properties.cathode.maximum_concentration;
 
             end
 
@@ -159,9 +159,9 @@ classdef SPMe < handle
             obj.x0 = [c_n0; c_p0; ce0; T10; T20; delta_sei0];
 
         end
-        function res = simulate(obj,time,current)
+        function [res,x] = simulate(obj,time,current)
             res.time = time;
-            res.cur = -current'/obj.cell_properties.electrode_area*10;
+            res.cur = -current/obj.cell_properties.electrode_area*10;
             obj.discretization.delta_t = res.time(2)-res.time(1);
             Opt    = odeset('Events',@(t,x)myEvent(t,x,obj,res));
 

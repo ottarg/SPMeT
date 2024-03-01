@@ -17,9 +17,19 @@ model.discretization.delta_x_p = 1 / model.discretization.Nxp;
 data = load('input-data/UDDS');
 model.initial_voltage = data.voltage(1);
 model.initialize
-res = model.simulate(data.time,data.current);
+[res,x] = model.simulate(data.time,data.current);
 
 figure
 plot(res.time,res.V)
 hold on
 plot(data.time,data.voltage)
+
+% figure
+% hold on
+% plot(res.time,res.SOC_n)
+% plot(res.time,res.SOC_p)
+% 
+% figure
+% plot(x(:,81))
+% hold on
+% plot(x(:,82))
