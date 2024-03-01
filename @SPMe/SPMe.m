@@ -13,15 +13,11 @@ classdef SPMe < handle
     properties (Dependent)
     end
     methods
+
         function obj = SPMe()
+
         end
-        [csn0,csp0] = initial_solid_concentrations(obj,V)
-        initialize_electrolyte_matrices(obj)
-        initialize_solid_phase_matrices(obj,anode_diffusion_coefficient,cathode_diffusion_coefficient)
-        [dActivity,varargout] = electrolyteAct(obj,c_e,T)
-        [i_0n,i_0p,varargout] = exch_cur_dens(obj,k_p,k_n,c_ss_n,c_ss_p,c_e)
-        [Uref] = refPotentialCathode(obj,theta)
-        [Uref] = refPotentialAnode(obj,theta)
+
         function initialize(obj)
             % Solid concentration
             [csn0,csp0] = obj.initial_solid_concentrations(obj.initial_voltage);
@@ -39,6 +35,7 @@ classdef SPMe < handle
             obj.x0 = [c_n0; c_p0; ce0; T10; T20; delta_sei0];
 
         end
+
         function [res,x] = simulate(obj,time,current)
             res.time = time;
             res.cur = -current/obj.cell_properties.electrode_area*10;
@@ -51,10 +48,18 @@ classdef SPMe < handle
                 [~,res.V(k),res.V_spm(k),res.SOC_n(k),res.SOC_p(k),res.c_ss_n(k),res.c_ss_p(k),res.c_e(:,k),res.OCV(:,k),res.anode_potential(:,k),res.cathode_potential(:,k)] = ...
                     spme_ode(obj,res.time(k),x(k,:)',res);
             end
-
         end
+        [csn0,csp0] = initial_solid_concentrations(obj,V)
+        initialize_electrolyte_matrices(obj)
+        initialize_solid_phase_matrices(obj,anode_diffusion_coefficient,cathode_diffusion_coefficient)
+        [dActivity,varargout] = electrolyteAct(obj,c_e,T)
+        [i_0n,i_0p,varargout] = exch_cur_dens(obj,k_p,k_n,c_ss_n,c_ss_p,c_e)
+
     end
+
     methods (Static)
+        [Uref] = refPotentialCathode(theta)
+        [Uref] = refPotentialAnode(theta)
     end
 
 end

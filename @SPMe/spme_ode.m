@@ -88,8 +88,8 @@ theta_n = anode_solid_surface_concentration / obj.cell_properties.anode.maximum_
 theta_p = cathode_solid_surface_concentration / obj.cell_properties.cathode.maximum_concentration;
 
 % Equilibrium Potential
-anode_reference_potential = refPotentialAnode(obj,theta_n);
-cathode_reference_potential = refPotentialCathode(obj,theta_p);
+anode_reference_potential = SPMe().refPotentialAnode(theta_n);
+cathode_reference_potential = SPMe().refPotentialCathode(theta_p);
 OCV = cathode_reference_potential - anode_reference_potential;
 % Exchange current density
 c_e_bar = [mean_electrolyte_concentration_anode; mean_electrolyte_concentration_separator; mean_electrolyte_concentration_cathode];
@@ -204,8 +204,8 @@ SOC_n = 3/obj.cell_properties.anode.maximum_concentration * trapz(r_vec,r_vec.^2
 SOC_p = 3/obj.cell_properties.cathode.maximum_concentration * trapz(r_vec,r_vec.^2.*c_p);
 
 % Equilibrium potentials
-[Unb] = refPotentialAnode(obj, SOC_n);
-[Upb] = refPotentialCathode(obj, SOC_p);
+[Unb] = SPMe().refPotentialAnode(SOC_n);
+[Upb] = SPMe().refPotentialCathode(SOC_p);
 OCV = Upb - Unb;
 % Heat generation
 Qdot = -cur*(V - OCV);

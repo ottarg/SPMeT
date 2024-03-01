@@ -1,4 +1,4 @@
-function [Uref] = refPotentialCathode(obj,theta)
+function [Uref] = refPotentialCathode(theta)
 %% Reference Potential for Pos. Electrode: Unref(theta_n)
 %   Created July 12, 2011 by Scott Moura
 

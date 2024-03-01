@@ -1,4 +1,4 @@
-function [Uref] = refPotentialAnode(obj,theta)
+function [Uref] = refPotentialAnode(theta)
 
 % DUALFOIL: MCMB 2528 graphite (Bellcore) 0.01 < x < 0.9
 Uref = 0.194+1.5*exp(-120.0*theta) ...
