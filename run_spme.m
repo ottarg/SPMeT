@@ -1,7 +1,6 @@
 clear
 close all
 
-
 model = SPMe;
 model.cell_properties = params_LCO;
 model.discretization.Nr = 30;

@@ -1,5 +1,7 @@
 function [value, isterminal, direction] = detectImagSolution(obj, t, x, data)
 
+%% This is an "Event" method for the ODE23s solver, which detects if any of these calculated variables has become imaginary and if so, exits the simulation. 
+
 % Parse and interpolate current
 current = interp1(data.time,data.current(1:length(data.time)),t,[]);
 
