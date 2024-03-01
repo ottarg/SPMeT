@@ -102,7 +102,7 @@ function p = params_LCO()
     p.anode.maximum_concentration = 3.6e3 *1.5* 372 * 1800 / SPMe().F;   % Max concentration in anode, [mol/m^3]
     p.cathode.maximum_concentration = 3.6e3 *1.5* 274 * 3010 / SPMe().F;    % Max concentration in cathode, [mol/m^3]
 %     p.anode.maximum_concentration / p.cathode.maximum_concentration 
-    p.total_moles_lithium = 2;        % Total moles of lithium in solid phase [mol]
+    p.total_moles_lithium = 1.8;        % Total moles of lithium in solid phase [mol]
     p.electrolyte_concentration = 1e3;              % Fixed electrolyte concentration for SPM, [mol/m^3]
     
     %% Cutoff voltages

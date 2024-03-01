@@ -1,10 +1,10 @@
-function [x_dot,varargout] = spme_ode(obj,t,x,data)
+function [x_dot,varargout] = spme_ode(obj,x,current,temperature)
 
 %% Parse Input Data
 
 % Parse and interpolate current
-current = interp1(data.time,data.current,t,[]);
-temperature = interp1(data.time,data.temperature,t,[])+273.15;
+% current = interp1(data.time,data.current,t,[]);
+temperature = temperature+273.15;
 % Parse states
 anode_solid_concentration = x(1:(obj.discretization.Nr-1));
 cathode_solid_concentration = x(obj.discretization.Nr : 2*(obj.discretization.Nr-1));

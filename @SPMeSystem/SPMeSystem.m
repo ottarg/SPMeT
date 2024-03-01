@@ -1,25 +1,22 @@
-classdef SPMe < handle
+classdef SPMeSystem < matlab.System
+    % Properties and methods for the CellModel
 
     properties
         cell_properties
         discretization
         initial_voltage
-        x0
+        time_step = 0.5;
     end
     properties(SetAccess = protected)
 
         solid_phase_matrices
         electrolyte_matrices
     end
-    properties (Dependent)
+    properties (DiscreteState)
+        x;
     end
-    methods
-
-        function obj = SPMe()
-
-        end
-
-        function initialize(obj)
+    methods(Access = protected)
+        function setupImpl(obj)
             % Solid concentration
             [csn0,csp0] = obj.initial_solid_concentrations(obj.initial_voltage);
             c_n0 = csn0 * ones(obj.discretization.Nr-1,1);
@@ -33,22 +30,16 @@ classdef SPMe < handle
             delta_sei0 = 0;
 
             initialize_electrolyte_matrices(obj);
-            obj.x0 = [c_n0; c_p0; ce0; T10; T20; delta_sei0];
+            obj.x = [c_n0; c_p0; ce0; T10; T20; delta_sei0];
         end
 
-        function [res,x] = simulate(obj,time,current,temperature)
-            obj.initialize;
-            res.time = time;
-            res.current = -current/obj.cell_properties.electrode_area*10;
-            res.temperature = temperature;
-            Opt    = odeset('Events',@(t,x)detectImagSolution(obj,t,x,res));
+        function [V,V_spm,SOC_n,SOC_p,c_ss_n,c_ss_p,c_e,OCV,anode_potential,cathode_potential] = stepImpl(obj,current,temperature)
+            [x_dot,V,V_spm,SOC_n,SOC_p,c_ss_n,c_ss_p,c_e,OCV,anode_potential,cathode_potential] = spme_ode(obj,obj.x,current,temperature);
+            obj.x = obj.x+x_dot*obj.time_step;
+        end
 
-            [res.timeODE,x] = ode23s(@(t,x) spme_ode(obj,t,x,res),[res.time(1),res.time(end)],obj.x0,Opt);
-            for k = 1:length(res.timeODE)
-                % Compute outputs
-                [~,res.V(k),res.V_spm(k),res.SOC_n(k),res.SOC_p(k),res.c_ss_n(k),res.c_ss_p(k),res.c_e(:,k),res.OCV(:,k),res.anode_potential(:,k),res.cathode_potential(:,k)] = ...
-                    spme_ode(obj,res.timeODE(k),x(k,:)',res);
-            end
+        function resetImpl(obj)
+            % Reset the internal states to initial conditions
         end
         [value, isterminal, direction] = detectImagSolution(obj, t, x, data)
         [csn0,csp0] = initial_solid_concentrations(obj,V)
@@ -56,7 +47,6 @@ classdef SPMe < handle
         initialize_solid_phase_matrices(obj,anode_diffusion_coefficient,cathode_diffusion_coefficient)
         [dActivity,varargout] = electrolyteAct(obj,c_e,T)
         [i_0n,i_0p,varargout] = exch_cur_dens(obj,k_p,k_n,c_ss_n,c_ss_p,c_e)
-        
     end
 
     methods (Static)
@@ -67,5 +57,4 @@ classdef SPMe < handle
         [kappa,varargout] = electrolyteCond(c_e)
         [D_e,varargout] = electrolyteDe(c_e)
     end
-
 end
