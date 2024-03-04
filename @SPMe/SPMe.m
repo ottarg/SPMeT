@@ -26,9 +26,6 @@ classdef SPMe < handle
             c_p0 = csp0 * ones(obj.discretization.Nr-1,1);
             % Electrolyte concentration
             ce0 = obj.cell_properties.electrolyte_concentration*ones(obj.discretization.Nxn+obj.discretization.Nxs+obj.discretization.Nxp - 3,1);
-            % Temperature
-%             T10 = obj.cell_properties.ambient_temperature;
-%             T20 = obj.cell_properties.ambient_temperature;
             % SEI layer
             delta_sei0 = 0;
 

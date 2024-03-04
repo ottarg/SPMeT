@@ -9,8 +9,6 @@ temperature = interp1(data.time,data.temperature,t,[])+273.15;
 anode_solid_concentration = x(1:(obj.discretization.Nr-1));
 cathode_solid_concentration = x(obj.discretization.Nr : 2*(obj.discretization.Nr-1));
 electrolyte_concentration = x(2*obj.discretization.Nr-1 : 2*obj.discretization.Nr-1+obj.discretization.Nx-4);
-% T1 = x(end-2);
-% T2 = x(end-1);
 delta_sei = x(end);
 
 %% Pre-calculations with current states
@@ -208,12 +206,6 @@ SOC_p = 3/obj.cell_properties.cathode.maximum_concentration * trapz(r_vec,r_vec.
 [Unb] = SPMe().refPotentialAnode(SOC_n);
 [Upb] = SPMe().refPotentialCathode(SOC_p);
 OCV = Upb - Unb;
-% Heat generation
-Qdot = -current*(V - OCV);
-
-% Differential equations
-% T1_dot = (obj.cell_properties.thermal.h12 * (T2-T1) + Qdot) / obj.cell_properties.thermal.C1;
-% T2_dot = (obj.cell_properties.thermal.h12 * (T1-T2) + obj.cell_properties.thermal.h2a*(obj.cell_properties.ambient_temperature - T2)) / obj.cell_properties.thermal.C2;
 
 %% Concatenate time derivatives
 x_dot = [c_s_n_dot; c_s_p_dot; c_e_dot; delta_sei_dot];
@@ -227,7 +219,7 @@ varargout{5} = anode_solid_surface_concentration;
 varargout{6} = cathode_solid_surface_concentration;
 varargout{7} = c_ex';
 varargout{8} = OCV;
-varargout{9} = anode_potential;
+varargout{9} = phi_se;
 varargout{10} = cathode_potential;
 
 end

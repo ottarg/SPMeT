@@ -17,39 +17,35 @@ model.discretization.delta_x_p = 1 / model.discretization.Nxp;
 
 
 % model.initial_voltage = data.voltage(1);
-model.initial_voltage = 3.6;
-time = 0:0.02:1000;
-current = 0.*time+3;
-current(1:1000) = 0;
-current(end-1000:end) = 0;
-temperature = 0.*time+30;
+model.initial_voltage = 4.15;
+time = 0:0.001:120;
+current = 0.*time-10;
+current(1:find(time>10,1,"first")) = 0;
+current(find(time>40,1,"first"):end) = 0;
+temperature = 0.*time+20;
 tic
-[res,~] = model.simulate(time,current,temperature);
-
-model.initialize;
-res.time = time;
-res.current = -current/model.cell_properties.electrode_area*10;
-res.temperature = temperature;
-Opt    = odeset('Events',@(t,x)detectImagSolution(model,t,x,res));
-
-
-
+[res60,X] = model.simulate(time,current,temperature);
+temperature = 0.*time+10;
+% [res10,~] = model.simulate(time,current,temperature);
 toc
 figure
 hold on
-plot(res.timeODE,res.V)
-plot(res.timeODE,res.OCV)
+plot(res60.timeODE,res60.V)
+plot(res60.timeODE,res60.OCV)
+% plot(res10.timeODE,res10.V)
+% plot(res10.timeODE,res10.OCV)
 
 figure
 hold on
-plot(res.timeODE,res.SOC_n)
-plot(res.timeODE,res.SOC_p)
+plot(res60.timeODE,res60.SOC_n)
+plot(res60.timeODE,res60.SOC_p)
 
 figure
-plot(res.anode_potential)
 hold on
-plot(res.cathode_potential)
-
+plot(res60.anode_potential)
+plot(res60.cathode_potential)
+% plot(res10.anode_potential)
+% plot(res10.cathode_potential)
 % 
 % 
 % %%
@@ -62,4 +58,6 @@ plot(res.cathode_potential)
 % figure
 % hold on
 % plot(res.timeODE,res.V)
-% plot(data.time,data.voltage)
+
+figure
+plot(X(:,end))
