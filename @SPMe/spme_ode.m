@@ -44,18 +44,18 @@ cesp = c_e_bcs(3);
 ce0p = c_e_bcs(4);
 
 % Separate and aggregate electrolyte concentration
-c_en = electrolyte_concentration(1:(obj.discretization.Nxn-1));
-c_es = electrolyte_concentration((obj.discretization.Nxn-1)+1:(obj.discretization.Nxn-1)+(obj.discretization.Nxs-1));
-c_ep = electrolyte_concentration((obj.discretization.Nxn-1)+obj.discretization.Nxs : end);
-c_ex = [ce0n; c_en; cens; c_es; cesp; c_ep; ce0p];
+anode_electrolyte_concentration = electrolyte_concentration(1:(obj.discretization.Nxn-1));
+separator_electrolyte_concentration = electrolyte_concentration((obj.discretization.Nxn-1)+1:(obj.discretization.Nxn-1)+(obj.discretization.Nxs-1));
+cathode_electrolyte_concentration = electrolyte_concentration((obj.discretization.Nxn-1)+obj.discretization.Nxs : end);
+electrolyte_concentrations = [ce0n; anode_electrolyte_concentration; cens; separator_electrolyte_concentration; cesp; cathode_electrolyte_concentration; ce0p];
 
 
 %% Voltage output
 
 % Average electrolyte concentrations
-mean_electrolyte_concentration_anode = mean(c_ex(1:obj.discretization.Nxn+1,:));
-mean_electrolyte_concentration_separator = mean(c_ex((obj.discretization.Nxn+1):(obj.discretization.Nxn+obj.discretization.Nxs+1),:));
-mean_electrolyte_concentration_cathode = mean(c_ex((obj.discretization.Nxn+obj.discretization.Nxs+1):(obj.discretization.Nxn+obj.discretization.Nxs+obj.discretization.Nxp+1),:));
+mean_electrolyte_concentration_anode = mean(electrolyte_concentrations(1:obj.discretization.Nxn+1,:));
+mean_electrolyte_concentration_separator = mean(electrolyte_concentrations((obj.discretization.Nxn+1):(obj.discretization.Nxn+obj.discretization.Nxs+1),:));
+mean_electrolyte_concentration_cathode = mean(electrolyte_concentrations((obj.discretization.Nxn+obj.discretization.Nxs+1):(obj.discretization.Nxn+obj.discretization.Nxs+obj.discretization.Nxp+1),:));
 
 % Overpotentials due to electrolyte subsystem
 nominal_electrolyte_conductivity_anode = SPMe().electrolyteCond(mean_electrolyte_concentration_anode);
@@ -88,10 +88,10 @@ theta_p = cathode_solid_surface_concentration / obj.cell_properties.cathode.maxi
 % Equilibrium Potential
 anode_reference_potential = SPMe().refPotentialAnode(theta_n);
 cathode_reference_potential = SPMe().refPotentialCathode(theta_p);
-OCV = cathode_reference_potential - anode_reference_potential;
+
 % Exchange current density
-c_e_bar = [mean_electrolyte_concentration_anode; mean_electrolyte_concentration_separator; mean_electrolyte_concentration_cathode];
-[i_0n,i_0p] = exch_cur_dens(obj,cathode_reaction_rate,anode_reaction_rate,anode_solid_surface_concentration,cathode_solid_surface_concentration,c_e_bar);
+mean_electrolyte_concentrations = [mean_electrolyte_concentration_anode; mean_electrolyte_concentration_separator; mean_electrolyte_concentration_cathode];
+[i_0n,i_0p] = exch_cur_dens(obj,cathode_reaction_rate,anode_reaction_rate,anode_solid_surface_concentration,cathode_solid_surface_concentration,mean_electrolyte_concentrations);
 % Overpotentials
 RTaF=(SPMe().R*temperature)/(obj.cell_properties.charge_transfer_coefficient*SPMe().F);
 anode_overpotential = RTaF * asinh(current / (2*obj.cell_properties.anode.specific_interfacial_area*obj.cell_properties.electrode_area*obj.cell_properties.anode.electrode_thickness*i_0n(1)));
@@ -111,7 +111,9 @@ cathode_potential = cathode_overpotential + cathode_reference_potential;
 V_noVCE = cathode_potential - anode_potential - electrode_resistance*current;
 
 % Overpotential due to electrolyte conductivity
-V_electrolyteCond = (obj.cell_properties.anode.electrode_thickness/(2*kap_n_eff) + 2*obj.cell_properties.separator.thickness/(2*kap_s_eff) + obj.cell_properties.cathode.electrode_thickness/(2*kap_p_eff))*current;
+V_electrolyteCond = (obj.cell_properties.anode.electrode_thickness/(2*kap_n_eff)...
+    + 2*obj.cell_properties.separator.thickness/(2*kap_s_eff)...
+    + obj.cell_properties.cathode.electrode_thickness/(2*kap_p_eff))*current;
 
 % Overpotential due to electrolyte polarization
 V_electrolytePolar = (2*SPMe().R*temperature)/(SPMe().F) * (1-obj.cell_properties.t_plus)* ...
@@ -139,10 +141,12 @@ phi_se = anode_overpotential + anode_reference_potential + SPMe().F*anode_resist
 eta_s = phi_se - obj.cell_properties.side_reaction_product.reference_potential - SPMe().F*anode_resistivity * jn_tot;
 
 % Molar flux of side rxn [mol/s-m^2]
-j_s = -obj.cell_properties.side_reaction_product.exchange_current_density/SPMe().F * exp((-obj.cell_properties.charge_transfer_coefficient*SPMe().F)/(SPMe().R*temperature)*eta_s);
+j_s = -obj.cell_properties.side_reaction_product.exchange_current_density/...
+    SPMe().F * exp((-obj.cell_properties.charge_transfer_coefficient*SPMe().F)/(SPMe().R*temperature)*eta_s);
 
 % SEI layer growth model [m/s]
-delta_sei_dot = -obj.cell_properties.side_reaction_product.molecular_weight/(obj.cell_properties.side_reaction_product.mass_density) * j_s;
+delta_sei_dot = -obj.cell_properties.side_reaction_product.molecular_weight/...
+    (obj.cell_properties.side_reaction_product.mass_density) * j_s;
 
 % Molar flux of intercalation
 jn = (abs(jn_tot) - abs(j_s)) * sign(jn_tot);
@@ -157,9 +161,9 @@ c_s_p_dot = obj.solid_phase_matrices.A_p*cathode_solid_concentration + obj.solid
 %% Electrolyte Dynamics
 
 % Compute Electrolyte Diffusion Coefficient and Derivative
-[D_en0,dD_en0] = SPMe().electrolyteDe(c_en);
-[D_es0,dD_es0] = SPMe().electrolyteDe(c_es);
-[D_ep0,dD_ep0] = SPMe().electrolyteDe(c_ep);
+[D_en0,dD_en0] = SPMe().electrolyteDe(anode_electrolyte_concentration);
+[D_es0,dD_es0] = SPMe().electrolyteDe(separator_electrolyte_concentration);
+[D_ep0,dD_ep0] = SPMe().electrolyteDe(cathode_electrolyte_concentration);
 
 % Adjustment for Arrhenius temperature dependence
 Arrh_De = exp(obj.cell_properties.E.De/SPMe().R*(1/obj.cell_properties.nominal_temperature - 1/temperature));
@@ -181,17 +185,17 @@ D_ep_eff = D_ep .* obj.cell_properties.cathode.volume_fraction_electrolyte.^(obj
 dD_ep_eff = dD_ep .* obj.cell_properties.cathode.volume_fraction_electrolyte.^(obj.cell_properties.bruggemann_porosity-1);
 
 % Compute derivative
-c_en_dot = dD_en_eff.*(obj.electrolyte_matrices.M1n*c_en + obj.electrolyte_matrices.M2n*c_e_bcs(1:2)).^2 ...
-    + D_en_eff.*(obj.electrolyte_matrices.M3n*c_en + obj.electrolyte_matrices.M4n*c_e_bcs(1:2)) + diag(obj.electrolyte_matrices.M5n)*jn;
+anode_electrolyte_concentration_dot = dD_en_eff.*(obj.electrolyte_matrices.M1n*anode_electrolyte_concentration + obj.electrolyte_matrices.M2n*c_e_bcs(1:2)).^2 ...
+    + D_en_eff.*(obj.electrolyte_matrices.M3n*anode_electrolyte_concentration + obj.electrolyte_matrices.M4n*c_e_bcs(1:2)) + diag(obj.electrolyte_matrices.M5n)*jn;
 
-c_es_dot = dD_es_eff.*(obj.electrolyte_matrices.M1s*c_es + obj.electrolyte_matrices.M2s*c_e_bcs(2:3)).^2 ...
-    + D_es_eff.*(obj.electrolyte_matrices.M3s*c_es + obj.electrolyte_matrices.M4s*c_e_bcs(2:3));
+separator_electrolyte_concentration_dot = dD_es_eff.*(obj.electrolyte_matrices.M1s*separator_electrolyte_concentration + obj.electrolyte_matrices.M2s*c_e_bcs(2:3)).^2 ...
+    + D_es_eff.*(obj.electrolyte_matrices.M3s*separator_electrolyte_concentration + obj.electrolyte_matrices.M4s*c_e_bcs(2:3));
 
-c_ep_dot = dD_ep_eff.*(obj.electrolyte_matrices.M1p*c_ep + obj.electrolyte_matrices.M2p*c_e_bcs(3:4)).^2 ...
-    + D_ep_eff.*(obj.electrolyte_matrices.M3p*c_ep + obj.electrolyte_matrices.M4p*c_e_bcs(3:4)) + diag(obj.electrolyte_matrices.M5p)*jp;
+cathode_electrolyte_concentration_dot = dD_ep_eff.*(obj.electrolyte_matrices.M1p*cathode_electrolyte_concentration + obj.electrolyte_matrices.M2p*c_e_bcs(3:4)).^2 ...
+    + D_ep_eff.*(obj.electrolyte_matrices.M3p*cathode_electrolyte_concentration + obj.electrolyte_matrices.M4p*c_e_bcs(3:4)) + diag(obj.electrolyte_matrices.M5p)*jp;
 
 % Assemble c_e_dot
-c_e_dot = [c_en_dot; c_es_dot; c_ep_dot];
+c_e_dot = [anode_electrolyte_concentration_dot; separator_electrolyte_concentration_dot; cathode_electrolyte_concentration_dot];
 
 %% Thermal Dynamics
 
@@ -217,7 +221,7 @@ varargout{3} = SOC_n;
 varargout{4} = SOC_p;
 varargout{5} = anode_solid_surface_concentration;
 varargout{6} = cathode_solid_surface_concentration;
-varargout{7} = c_ex';
+varargout{7} = electrolyte_concentrations';
 varargout{8} = OCV;
 varargout{9} = phi_se;
 varargout{10} = cathode_potential;

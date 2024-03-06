@@ -1,4 +1,4 @@
-function  [csn0,csp0] = initial_solid_concentrations(obj,V)
+function  [csn0,csp0] = initial_solid_concentrations(obj,initial_voltage)
 %% Use Bisection Algorithm
 
 % Algorithm params
@@ -21,7 +21,7 @@ for idx = 1:maxiters
     OCPn = SPMe().refPotentialAnode(theta_n);
     OCPp = SPMe().refPotentialCathode(theta_p);
 
-    f(idx) = OCPp - OCPn - V;
+    f(idx) = OCPp - OCPn - initial_voltage;
 
     if(abs(f(idx)) <= tol)
         break;
@@ -33,8 +33,6 @@ for idx = 1:maxiters
 
     % Bisection
     x(idx+1) = (x_high + x_low)/2;
-    %                 x(idx+1) = x(idx+1)/obj.cell_properties.cathode.maximum_concentration;
-
 end
 
 % Output conveged csp0

@@ -4,37 +4,41 @@ close all
 model = SPMe;
 model.cell_properties = params_LCO;
 model.discretization.Nr = 30;
-model.discretization.delta_r_n = 1/model.discretization.Nr;
-model.discretization.delta_r_p = 1/model.discretization.Nr;
-% Finite difference points along x-coordinate
+
 model.discretization.Nxn = 10;
 model.discretization.Nxs = 5;
 model.discretization.Nxp = 10;
-model.discretization.Nx = model.discretization.Nxn+model.discretization.Nxs+model.discretization.Nxp;
-model.discretization.delta_x_n = 1 / model.discretization.Nxn;
-model.discretization.delta_x_s = 1 / model.discretization.Nxs;
-model.discretization.delta_x_p = 1 / model.discretization.Nxp;
 
 
-% model.initial_voltage = data.voltage(1);
 model.initial_voltage = 4.15;
-time = 0:0.001:120;
+time = 0:0.1:120;
 current = 0.*time-10;
 current(1:find(time>10,1,"first")) = 0;
 current(find(time>40,1,"first"):end) = 0;
 temperature = 0.*time+30;
-tic
-[res,X] = model.simulate(time,current,temperature);
+[res,x] = model.simulate(time,current,temperature);
 
+figure
+for i = 1:height(x)
+    plot([x(i,1:29),x(i,59:80),x(i,58:-1:30)])
+    drawnow
+    pause(0.1)
+end
 figure
 subplot(2,2,1)
 hold on
-plot(res.timeODE,res.SOC_n)
-plot(res.timeODE,res.SOC_p)
+plot(res.time,res.SOC_n,'DisplayName','Anode')
+plot(res.time,res.SOC_p,'DisplayName','Cathode')
+superLabel('Time (s)','SOC','',1)
 subplot(2,2,2)
 hold on
-plot(res.anode_potential)
-plot(res.cathode_potential)
+plot(res.anode_potential,'DisplayName','Anode')
+plot(res.cathode_potential,'DisplayName','Cathode')
+superLabel('Time (s)','Voltage (V)','',1)
 subplot(2,2,3)
-plot(res.timeODE,res.V)
-plot(res.timeODE,res.OCV)
+hold on
+plot(res.time,res.V,'DisplayName','OCV')
+plot(res.time,res.OCV,'DisplayName','OCV')
+superLabel('Time (s)','Voltage (V)','',1)
+
+
