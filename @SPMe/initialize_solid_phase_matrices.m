@@ -1,8 +1,8 @@
 function initialize_solid_phase_matrices(obj,anode_diffusion_coefficient,cathode_diffusion_coefficient)
 
 % Electrochemical Model Parameters
-alpha_n = anode_diffusion_coefficient / (obj.cell_properties.anode.particle_radius * obj.discretization.delta_r_n)^2;
-alpha_p = cathode_diffusion_coefficient / (obj.cell_properties.cathode.particle_radius * obj.discretization.delta_r_p)^2;
+alpha_n = anode_diffusion_coefficient / (obj.anode.particle_radius * obj.discretization.delta_r_n)^2;
+alpha_p = cathode_diffusion_coefficient / (obj.cathode.particle_radius * obj.discretization.delta_r_p)^2;
 
 % Block matrices
 M1_n = zeros(obj.discretization.radial_divisions-1);
@@ -49,8 +49,8 @@ N1(2,end-1) = 1;
 
 N2 = diag([-3,3]);
 
-N3_n = [0; -(2*obj.discretization.delta_r_n * obj.cell_properties.anode.particle_radius)/(anode_diffusion_coefficient)];
-N3_p = [0; -(2*obj.discretization.delta_r_p * obj.cell_properties.cathode.particle_radius)/(cathode_diffusion_coefficient)];
+N3_n = [0; -(2*obj.discretization.delta_r_n * obj.anode.particle_radius)/(anode_diffusion_coefficient)];
+N3_p = [0; -(2*obj.discretization.delta_r_p * obj.cathode.particle_radius)/(cathode_diffusion_coefficient)];
 
 % A,B matrices for each electrode
 obj.solid_phase_matrices.A_n = M1_n - M2_n*(N2\N1);

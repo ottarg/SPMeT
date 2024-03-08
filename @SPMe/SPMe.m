@@ -1,12 +1,24 @@
 classdef SPMe < handle
 
     properties
-        cell_properties
+        anode Anode = Anode()
+        cathode Cathode = Cathode()
+        electrolyte Electrolyte = Electrolyte()
+        separator Separator = Separator()
+        side_reaction_product SideReactionProduct = SideReactionProduct()
+        electrode_area
+        total_moles_lithium
+        nominal_temperature
+        maximum_voltage
+        minimum_voltage
+        transference_number
+        charge_transfer_coefficient
+        bruggemann_porosity
         discretization
         initial_voltage
-        x0
     end
     properties(SetAccess = protected)
+        x0
         solid_phase_matrices
         electrolyte_matrices
     end
@@ -39,7 +51,7 @@ classdef SPMe < handle
             initial_anode_concentration = initial_anode_concentration * ones(obj.discretization.radial_divisions-1,1);
             initial_cathode_concentration = initial_cathode_concentration * ones(obj.discretization.radial_divisions-1,1);
             % Electrolyte concentration
-            electrolyte_concentration = obj.cell_properties.electrolyte_concentration*ones(obj.discretization.Nxn+obj.discretization.Nxs+obj.discretization.Nxp - 3,1);
+            electrolyte_concentration = obj.electrolyte.concentration*ones(obj.discretization.Nxn+obj.discretization.Nxs+obj.discretization.Nxp - 3,1);
             % SEI layer
             initial_sei_growth = 0;
             initialize_electrolyte_matrices(obj);
@@ -49,7 +61,7 @@ classdef SPMe < handle
         function [res,x] = simulate(obj,time,current,temperature)
             obj.initialize;
             data.time = time;
-            data.current = -current/obj.cell_properties.electrode_area*10;
+            data.current = -current/obj.electrode_area*10;
             data.temperature = temperature;
             Opt    = odeset('Events',@(t,x)detectImagSolution(obj,t,x,data));
             [res.time,x] = ode23s(@(t,x) spme_ode(obj,t,x,data),[data.time(1),data.time(end)],obj.x0,Opt);
@@ -70,26 +82,26 @@ classdef SPMe < handle
         [dActivity,varargout] = electrolyteAct(obj,c_e,T)
         [i_0n,i_0p,varargout] = exch_cur_dens(obj,k_p,k_n,c_ss_n,c_ss_p,c_e)
         function val = get.anode_capacity(obj)
-            val = obj.cell_properties.anode.volume_fraction_solid*...
-                  obj.cell_properties.anode.electrode_thickness*...
+            val = obj.anode.volume_fraction_solid*...
+                  obj.anode.electrode_thickness*...
                       obj.anode_concentration_range*SPMe().F/3600;
         end
         function val = get.cathode_capacity(obj)
-            val = obj.cell_properties.cathode.volume_fraction_solid*...
-                  obj.cell_properties.cathode.electrode_thickness*...
+            val = obj.cathode.volume_fraction_solid*...
+                  obj.cathode.electrode_thickness*...
                       obj.cathode_concentration_range*SPMe().F/3600;
         end
         function val = get.capacity(obj)
             val = min(obj.anode_capacity, obj.cathode_capacity);
         end
         function val = get.anode_concentration_range(obj)
-             [low_v_anode_concentration,~] = obj.electrode_solid_concentrations(obj.cell_properties.minimum_voltage);
-             [high_v_anode_concentration,~] = obj.electrode_solid_concentrations(obj.cell_properties.maximum_voltage);
+             [low_v_anode_concentration,~] = obj.electrode_solid_concentrations(obj.minimum_voltage);
+             [high_v_anode_concentration,~] = obj.electrode_solid_concentrations(obj.maximum_voltage);
              val = high_v_anode_concentration-low_v_anode_concentration;
         end
         function val = get.cathode_concentration_range(obj)
-             [~,low_v_cathode_concentration] = obj.electrode_solid_concentrations(obj.cell_properties.minimum_voltage);
-             [~,high_v_cathode_concentration] = obj.electrode_solid_concentrations(obj.cell_properties.maximum_voltage);
+             [~,low_v_cathode_concentration] = obj.electrode_solid_concentrations(obj.minimum_voltage);
+             [~,high_v_cathode_concentration] = obj.electrode_solid_concentrations(obj.maximum_voltage);
              val = low_v_cathode_concentration-high_v_cathode_concentration;
         end
     end

@@ -1,13 +1,14 @@
 classdef Electrode < handle
 
     properties
-        thickness
-        area
+        electrode_thickness
         particle_radius
         volume_fraction_solid
         volume_fraction_electrolyte
         diffusion_coefficient
         reaction_rate
+        intercalation_activation_energy
+        diffusion_activation_energy
         maximum_concentration
     end
     properties (Dependent)

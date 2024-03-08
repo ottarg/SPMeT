@@ -1,8 +1,8 @@
 clear
 close all
 
-model = SPMe;
-model.cell_properties = params_LCO;
+model = SPME_assumps_LCO;
+% model.cell_properties = params_LCO;
 % model.discretization.Nr = 30;
 model.discretization.radial_divisions = 30;
 

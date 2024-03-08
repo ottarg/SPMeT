@@ -1,9 +1,9 @@
 function initialize_electrolyte_matrices(obj)
 
             %% Lumped Coefficients
-            Del_xn = obj.cell_properties.anode.electrode_thickness * obj.discretization.delta_x_n;
-            Del_xs = obj.cell_properties.separator.thickness * obj.discretization.delta_x_s;
-            Del_xp = obj.cell_properties.cathode.electrode_thickness * obj.discretization.delta_x_p;
+            Del_xn = obj.anode.electrode_thickness * obj.discretization.delta_x_n;
+            Del_xs = obj.separator.thickness * obj.discretization.delta_x_s;
+            Del_xp = obj.cathode.electrode_thickness * obj.discretization.delta_x_p;
 
             %% Matrices in nonlinear dynamics
             obj.electrolyte_matrices.M1n = sparse((diag(ones(obj.discretization.Nxn-2,1),+1) - diag(ones(obj.discretization.Nxn-2,1),-1))/(2*Del_xn));
@@ -31,7 +31,6 @@ function initialize_electrolyte_matrices(obj)
             obj.electrolyte_matrices.M3s = sparse((-2*diag(ones(obj.discretization.Nxs-1,1),0) + diag(ones(obj.discretization.Nxs-2,1),+1) + diag(ones(obj.discretization.Nxs-2,1),-1))/(Del_xs^2));
             obj.electrolyte_matrices.M3p = sparse((-2*diag(ones(obj.discretization.Nxp-1,1),0) + diag(ones(obj.discretization.Nxp-2,1),+1) + diag(ones(obj.discretization.Nxp-2,1),-1))/(Del_xp^2));
 
-
             M4n = zeros(obj.discretization.Nxn-1,2);
             M4n(1,1) = 1/(Del_xn^2);
             M4n(end,end) = 1/(Del_xn^2);
@@ -47,8 +46,8 @@ function initialize_electrolyte_matrices(obj)
             M4p(end,end) = 1/(Del_xp^2);
             obj.electrolyte_matrices.M4p = sparse(M4p);
 
-            obj.electrolyte_matrices.M5n = (1-obj.cell_properties.transference_number)*obj.cell_properties.anode.specific_interfacial_area/obj.cell_properties.anode.volume_fraction_electrolyte * speye(obj.discretization.Nxn-1);
-            obj.electrolyte_matrices.M5p = (1-obj.cell_properties.transference_number)*obj.cell_properties.cathode.specific_interfacial_area/obj.cell_properties.cathode.volume_fraction_electrolyte * speye(obj.discretization.Nxp-1);
+            obj.electrolyte_matrices.M5n = (1-obj.transference_number)*obj.anode.specific_interfacial_area/obj.anode.volume_fraction_electrolyte * speye(obj.discretization.Nxn-1);
+            obj.electrolyte_matrices.M5p = (1-obj.transference_number)*obj.cathode.specific_interfacial_area/obj.cathode.volume_fraction_electrolyte * speye(obj.discretization.Nxp-1);
 
             %% Boundary Conditions
             N1 = zeros(4,obj.discretization.Nx-3);
@@ -60,18 +59,18 @@ function initialize_electrolyte_matrices(obj)
             N2(1,1) = -3;
 
             % Boundary condition 2
-            N1(2,obj.discretization.Nxn-2) = (obj.cell_properties.anode.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xn);
-            N1(2,obj.discretization.Nxn-1) = (-4*obj.cell_properties.anode.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xn);
-            N2(2,2) = (3*obj.cell_properties.anode.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xn) + (3*obj.cell_properties.separator.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xs);
-            N1(2,obj.discretization.Nxn) = (-4*obj.cell_properties.separator.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xs);
-            N1(2,obj.discretization.Nxn+1) = (obj.cell_properties.separator.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xs);
+            N1(2,obj.discretization.Nxn-2) = (obj.anode.volume_fraction_electrolyte^obj.bruggemann_porosity)/(2*Del_xn);
+            N1(2,obj.discretization.Nxn-1) = (-4*obj.anode.volume_fraction_electrolyte^obj.bruggemann_porosity)/(2*Del_xn);
+            N2(2,2) = (3*obj.anode.volume_fraction_electrolyte^obj.bruggemann_porosity)/(2*Del_xn) + (3*obj.separator.volume_fraction_electrolyte^obj.bruggemann_porosity)/(2*Del_xs);
+            N1(2,obj.discretization.Nxn) = (-4*obj.separator.volume_fraction_electrolyte^obj.bruggemann_porosity)/(2*Del_xs);
+            N1(2,obj.discretization.Nxn+1) = (obj.separator.volume_fraction_electrolyte^obj.bruggemann_porosity)/(2*Del_xs);
 
             % Boundary condition 3
-            N1(3,obj.discretization.Nxn+obj.discretization.Nxs-3) = (obj.cell_properties.separator.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xs);
-            N1(3,obj.discretization.Nxn+obj.discretization.Nxs-2) = (-4*obj.cell_properties.separator.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xs);
-            N2(3,3) = (3*obj.cell_properties.separator.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xs) + (3*obj.cell_properties.cathode.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xp);
-            N1(3,obj.discretization.Nxn+obj.discretization.Nxs-1) = (-4*obj.cell_properties.cathode.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xp);
-            N1(3,obj.discretization.Nxn+obj.discretization.Nxs) = (obj.cell_properties.cathode.volume_fraction_electrolyte^obj.cell_properties.bruggemann_porosity)/(2*Del_xp);
+            N1(3,obj.discretization.Nxn+obj.discretization.Nxs-3) = (obj.separator.volume_fraction_electrolyte^obj.bruggemann_porosity)/(2*Del_xs);
+            N1(3,obj.discretization.Nxn+obj.discretization.Nxs-2) = (-4*obj.separator.volume_fraction_electrolyte^obj.bruggemann_porosity)/(2*Del_xs);
+            N2(3,3) = (3*obj.separator.volume_fraction_electrolyte^obj.bruggemann_porosity)/(2*Del_xs) + (3*obj.cathode.volume_fraction_electrolyte^obj.bruggemann_porosity)/(2*Del_xp);
+            N1(3,obj.discretization.Nxn+obj.discretization.Nxs-1) = (-4*obj.cathode.volume_fraction_electrolyte^obj.bruggemann_porosity)/(2*Del_xp);
+            N1(3,obj.discretization.Nxn+obj.discretization.Nxs) = (obj.cathode.volume_fraction_electrolyte^obj.bruggemann_porosity)/(2*Del_xp);
 
             % Boundary condition 4
             N1(4,end-1) = 1;

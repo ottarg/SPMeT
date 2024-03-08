@@ -18,10 +18,10 @@ v31 = -0.0052;
 
 c_e = c_e/1000; % UnitConversion: 1 mol/L -> 1000 mol/m^3
 
-dActivity = ((v00 + v10.*(c_e).^(0.5) + v30*(1+v31*(T - obj.cell_properties.nominal_temperature)) .* (c_e).^(1.5))./(1-obj.cell_properties.transference_number))-1;
+dActivity = ((v00 + v10.*(c_e).^(0.5) + v30*(1+v31*(T - obj.nominal_temperature)) .* (c_e).^(1.5))./(1-obj.transference_number))-1;
 
 if(nargout == 2)
-    d_dactivity = (0.5 * v10 * (c_e).^(-0.5) + (1.5)*v30*(1+v31*(T - obj.cell_properties.nominal_temperature))*(c_e).^(0.5))/(1-obj.cell_properties.transference_number);
+    d_dactivity = (0.5 * v10 * (c_e).^(-0.5) + (1.5)*v30*(1+v31*(T - obj.nominal_temperature))*(c_e).^(0.5))/(1-obj.transference_number);
     varargout{1} = d_dactivity;
 end
 end
