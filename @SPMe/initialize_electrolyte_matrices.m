@@ -47,8 +47,8 @@ function initialize_electrolyte_matrices(obj)
             M4p(end,end) = 1/(Del_xp^2);
             obj.electrolyte_matrices.M4p = sparse(M4p);
 
-            obj.electrolyte_matrices.M5n = (1-obj.cell_properties.t_plus)*obj.cell_properties.anode.specific_interfacial_area/obj.cell_properties.anode.volume_fraction_electrolyte * speye(obj.discretization.Nxn-1);
-            obj.electrolyte_matrices.M5p = (1-obj.cell_properties.t_plus)*obj.cell_properties.cathode.specific_interfacial_area/obj.cell_properties.cathode.volume_fraction_electrolyte * speye(obj.discretization.Nxp-1);
+            obj.electrolyte_matrices.M5n = (1-obj.cell_properties.transference_number)*obj.cell_properties.anode.specific_interfacial_area/obj.cell_properties.anode.volume_fraction_electrolyte * speye(obj.discretization.Nxn-1);
+            obj.electrolyte_matrices.M5p = (1-obj.cell_properties.transference_number)*obj.cell_properties.cathode.specific_interfacial_area/obj.cell_properties.cathode.volume_fraction_electrolyte * speye(obj.discretization.Nxp-1);
 
             %% Boundary Conditions
             N1 = zeros(4,obj.discretization.Nx-3);
