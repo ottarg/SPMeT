@@ -11,6 +11,11 @@ classdef SPMe < handle
         electrolyte_matrices
     end
     properties (Dependent)
+        anode_capacity
+        cathode_capacity
+        capacity
+        anode_concentration_range
+        cathode_concentration_range
     end
     methods
 
@@ -28,7 +33,7 @@ classdef SPMe < handle
             obj.discretization.delta_x_p = 1 / obj.discretization.Nxp;
 
             % Solid concentration
-            [initial_anode_concentration,initial_cathode_concentration] = obj.initial_solid_concentrations(obj.initial_voltage);
+            [initial_anode_concentration,initial_cathode_concentration] = obj.electrode_solid_concentrations(obj.initial_voltage);
             c_n0 = initial_anode_concentration * ones(obj.discretization.Nr-1,1);
             c_p0 = initial_cathode_concentration * ones(obj.discretization.Nr-1,1);
             % Electrolyte concentration
@@ -58,14 +63,36 @@ classdef SPMe < handle
         end
         
         [value, isterminal, direction] = detectImagSolution(obj, t, x, data)
-        [csn0,csp0] = initial_solid_concentrations(obj,V)
+        [csn0,csp0] = electrode_solid_concentrations(obj,V)
         initialize_electrolyte_matrices(obj)
         initialize_solid_phase_matrices(obj,anode_diffusion_coefficient,cathode_diffusion_coefficient)
         [dActivity,varargout] = electrolyteAct(obj,c_e,T)
         [i_0n,i_0p,varargout] = exch_cur_dens(obj,k_p,k_n,c_ss_n,c_ss_p,c_e)
-        
+        function val = get.anode_capacity(obj)
+            val = obj.cell_properties.anode.volume_fraction_solid*...
+                  obj.cell_properties.anode.electrode_thickness*...
+                      obj.anode_concentration_range*SPMe().F/3600;
+        end
+        function val = get.cathode_capacity(obj)
+            val = obj.cell_properties.cathode.volume_fraction_solid*...
+                  obj.cell_properties.cathode.electrode_thickness*...
+                      obj.cathode_concentration_range*SPMe().F/3600;
+        end
+        function val = get.capacity(obj)
+            val = min(obj.anode_capacity, obj.cathode_capacity);
+        end
+        function val = get.anode_concentration_range(obj)
+             [low_v_anode_concentration,~] = obj.electrode_solid_concentrations(obj.cell_properties.minimum_voltage);
+             [high_v_anode_concentration,~] = obj.electrode_solid_concentrations(obj.cell_properties.maximum_voltage);
+             val = high_v_anode_concentration-low_v_anode_concentration;
+        end
+        function val = get.cathode_concentration_range(obj)
+             [~,low_v_cathode_concentration] = obj.electrode_solid_concentrations(obj.cell_properties.minimum_voltage);
+             [~,high_v_cathode_concentration] = obj.electrode_solid_concentrations(obj.cell_properties.maximum_voltage);
+             val = low_v_cathode_concentration-high_v_cathode_concentration;
+        end
     end
-
+        
     methods (Static)
         F = F
         R = R

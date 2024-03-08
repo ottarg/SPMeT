@@ -1,4 +1,4 @@
-function  [csn0,csp0] = initial_solid_concentrations(obj,initial_voltage)
+function  [csn0,csp0] = electrode_solid_concentrations(obj,voltage)
 %% Use Bisection Algorithm
 
 % Algorithm params
@@ -21,7 +21,7 @@ for idx = 1:maxiters
     OCPn = SPMe().refPotentialAnode(theta_n);
     OCPp = SPMe().refPotentialCathode(theta_p);
 
-    f(idx) = OCPp - OCPn - initial_voltage;
+    f(idx) = OCPp - OCPn - voltage;
 
     if(abs(f(idx)) <= tol)
         break;
