@@ -5,10 +5,10 @@ alpha_n = anode_diffusion_coefficient / (obj.cell_properties.anode.particle_radi
 alpha_p = cathode_diffusion_coefficient / (obj.cell_properties.cathode.particle_radius * obj.discretization.delta_r_p)^2;
 
 % Block matrices
-M1_n = zeros(obj.discretization.Nr-1);
-M1_p = zeros(obj.discretization.Nr-1);
+M1_n = zeros(obj.discretization.radial_divisions-1);
+M1_p = zeros(obj.discretization.radial_divisions-1);
 
-for idx = 1:(obj.discretization.Nr-1)
+for idx = 1:(obj.discretization.radial_divisions-1)
 
     % Lower diagonal
     if(idx ~= 1)
@@ -21,19 +21,19 @@ for idx = 1:(obj.discretization.Nr-1)
     M1_p(idx,idx) = -2*alpha_p;
 
     % Upper diagonal
-    if(idx ~= (obj.discretization.Nr-1))
+    if(idx ~= (obj.discretization.radial_divisions-1))
         M1_n(idx,idx+1) = (idx+1)/idx * alpha_n;
         M1_p(idx,idx+1) = (idx+1)/idx * alpha_p;
     end
 end
 
-M2_n = zeros(obj.discretization.Nr-1,2);
-M2_p = zeros(obj.discretization.Nr-1,2);
+M2_n = zeros(obj.discretization.radial_divisions-1,2);
+M2_p = zeros(obj.discretization.radial_divisions-1,2);
 
-M2_n(end,end) = obj.discretization.Nr/(obj.discretization.Nr-1) * alpha_n;
-M2_p(end,end) = obj.discretization.Nr/(obj.discretization.Nr-1) * alpha_p;
+M2_n(end,end) = obj.discretization.radial_divisions/(obj.discretization.radial_divisions-1) * alpha_n;
+M2_p(end,end) = obj.discretization.radial_divisions/(obj.discretization.radial_divisions-1) * alpha_p;
 
-N1 = zeros(2,obj.discretization.Nr-1);
+N1 = zeros(2,obj.discretization.radial_divisions-1);
 % % 1st Order BCs
 % N1(1,1) = 1;
 % N1(end,end) = -1;

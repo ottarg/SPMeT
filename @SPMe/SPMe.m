@@ -17,6 +17,8 @@ classdef SPMe < handle
         anode_concentration_range
         cathode_concentration_range
     end
+    properties (Hidden)
+    end
     methods
 
         function obj = SPMe()
@@ -24,25 +26,24 @@ classdef SPMe < handle
         end
 
         function initialize(obj)
-            obj.discretization.delta_r_n = 1/obj.discretization.Nr;
-            obj.discretization.delta_r_p = 1/obj.discretization.Nr;
-            obj.discretization.Nx = obj.discretization.Nxn+obj.discretization.Nxs+obj.discretization.Nxp;
+            obj.discretization.delta_r_n = 1 / obj.discretization.radial_divisions;
+            obj.discretization.delta_r_p = 1 / obj.discretization.radial_divisions;
             % Finite difference points along x-coordinate
+            obj.discretization.Nx = obj.discretization.Nxn+obj.discretization.Nxs+obj.discretization.Nxp;
             obj.discretization.delta_x_n = 1 / obj.discretization.Nxn;
             obj.discretization.delta_x_s = 1 / obj.discretization.Nxs;
             obj.discretization.delta_x_p = 1 / obj.discretization.Nxp;
 
             % Solid concentration
             [initial_anode_concentration,initial_cathode_concentration] = obj.electrode_solid_concentrations(obj.initial_voltage);
-            c_n0 = initial_anode_concentration * ones(obj.discretization.Nr-1,1);
-            c_p0 = initial_cathode_concentration * ones(obj.discretization.Nr-1,1);
+            initial_anode_concentration = initial_anode_concentration * ones(obj.discretization.radial_divisions-1,1);
+            initial_cathode_concentration = initial_cathode_concentration * ones(obj.discretization.radial_divisions-1,1);
             % Electrolyte concentration
-            ce0 = obj.cell_properties.electrolyte_concentration*ones(obj.discretization.Nxn+obj.discretization.Nxs+obj.discretization.Nxp - 3,1);
+            electrolyte_concentration = obj.cell_properties.electrolyte_concentration*ones(obj.discretization.Nxn+obj.discretization.Nxs+obj.discretization.Nxp - 3,1);
             % SEI layer
-            delta_sei0 = 0;
-
+            initial_sei_growth = 0;
             initialize_electrolyte_matrices(obj);
-            obj.x0 = [c_n0; c_p0; ce0; delta_sei0];
+            obj.x0 = [initial_anode_concentration; initial_cathode_concentration; electrolyte_concentration; initial_sei_growth];
         end
 
         function [res,x] = simulate(obj,time,current,temperature)

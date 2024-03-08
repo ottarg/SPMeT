@@ -7,9 +7,9 @@ activation_energy = obj.cell_properties.activation_energy;
 current = interp1(data.time,data.current(1:length(data.time)),t,[]);
 temperature = interp1(data.time,data.temperature,t,[])+273.15;
 % Parse states
-anode_solid_concentration = x(1:(obj.discretization.Nr-1));
-cathode_solid_concentration = x(obj.discretization.Nr : 2*(obj.discretization.Nr-1));
-electrolyte_concentration = x(2*obj.discretization.Nr-1 : 2*obj.discretization.Nr-1+obj.discretization.Nx-4);
+anode_solid_concentration = x(1:(obj.discretization.radial_divisions-1));
+cathode_solid_concentration = x(obj.discretization.radial_divisions : 2*(obj.discretization.radial_divisions-1));
+electrolyte_concentration = x(2*obj.discretization.radial_divisions-1 : 2*obj.discretization.radial_divisions-1+obj.discretization.Nx-4);
 delta_sei = x(end);
 
 %% Pre-calculations with current states
@@ -74,9 +74,9 @@ kap_s_eff = electrolyte_conductivity_separator * obj.cell_properties.separator.v
 kap_p_eff = electrolyte_conductivity_cathode * obj.cell_properties.cathode.volume_fraction_electrolyte.^(obj.cell_properties.bruggemann_porosity);
 
 % Activity coefficient
-dfca_n = electrolyteAct(obj,mean_electrolyte_concentration_anode,T1);
-dfca_s = electrolyteAct(obj,mean_electrolyte_concentration_separator,T1);
-dfca_p = electrolyteAct(obj,mean_electrolyte_concentration_cathode,T1);
+dfca_n = electrolyteAct(obj,mean_electrolyte_concentration_anode,temperature);
+dfca_s = electrolyteAct(obj,mean_electrolyte_concentration_separator,temperature);
+dfca_p = electrolyteAct(obj,mean_electrolyte_concentration_cathode,temperature);
 
 % Kinetic reaction rate, adjusted for Arrhenius temperature dependence
 anode_reaction_rate = obj.cell_properties.anode.reaction_rate * exp(activation_energy.anode_intercalation/SPMe().R*(1/obj.cell_properties.nominal_temperature - 1/temperature));

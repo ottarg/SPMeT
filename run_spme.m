@@ -3,9 +3,11 @@ close all
 
 model = SPMe;
 model.cell_properties = params_LCO;
-model.discretization.Nr = 30;
+% model.discretization.Nr = 30;
+model.discretization.radial_divisions = 30;
 
 model.discretization.Nxn = 10;
+
 model.discretization.Nxs = 5;
 model.discretization.Nxp = 10;
 
