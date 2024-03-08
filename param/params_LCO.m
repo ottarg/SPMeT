@@ -67,20 +67,7 @@ function p = params_LCO()
     p.E.Dsp = 18.55e3;
     p.E.De = 37.04e3;
     p.E.kappa_e = 34.70e3;
-    
-    %% Thermodynamic Params
-    % Ambient Temperature
-    p.ambient_temperature = 313.15; % [K]
-    % Reference temperature
-    p.nominal_temperature = 298.15; %[K]
-    % Heat transfer parameters
-    % Taken from Zhang et al (2014) [Harbin]
-    % http://dx.doi.org/10.1016/j.jpowsour.2014.07.110
-    p.thermal.C1 = 62.7;    % [J/K]
-    p.thermal.C2 = 4.5;     % [J/K]
-    p.thermal.h12 = 1; %1.9386; % [W/K]
-    p.thermal.h2a = 2.145;  % [W/K]
-    
+ 
     %% Aging submodel parameters
     
     %   SEI Layer Growth model

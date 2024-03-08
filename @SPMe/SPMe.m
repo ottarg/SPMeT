@@ -63,7 +63,7 @@ classdef SPMe < handle
         end
         
         [value, isterminal, direction] = detectImagSolution(obj, t, x, data)
-        [csn0,csp0] = electrode_solid_concentrations(obj,V)
+        [anode_concentration,cathode_concentration] = electrode_solid_concentrations(obj,V)
         initialize_electrolyte_matrices(obj)
         initialize_solid_phase_matrices(obj,anode_diffusion_coefficient,cathode_diffusion_coefficient)
         [dActivity,varargout] = electrolyteAct(obj,c_e,T)
