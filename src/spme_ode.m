@@ -27,7 +27,7 @@ anode_diffusion_coefficient   = anode.diffusion_coefficient * exp(anode.diffusio
 cathode_diffusion_coefficient = cathode.diffusion_coefficient * exp(cathode.diffusion_activation_energy/SPMe().R*(1/obj.nominal_temperature - 1/temperature));
 
 % Construct (A,B) matrices for solid-phase Li diffusion
-initialize_solid_phase_matrices(obj,anode_diffusion_coefficient,cathode_diffusion_coefficient)
+obj = initialize_solid_phase_matrices(obj,anode_diffusion_coefficient,cathode_diffusion_coefficient);
 % Compute surface concentrations
 anode_solid_surface_concentration = obj.solid_phase_matrices.C_n*anode_solid_concentration + obj.solid_phase_matrices.D_n*jn_tot;
 cathode_solid_surface_concentration = obj.solid_phase_matrices.C_p*cathode_solid_concentration + obj.solid_phase_matrices.D_p*jp_tot;
@@ -76,9 +76,9 @@ kap_s_eff = electrolyte_conductivity_separator * obj.separator.volume_fraction_e
 kap_p_eff = electrolyte_conductivity_cathode * cathode.volume_fraction_electrolyte.^(obj.bruggemann_porosity);
 
 % Activity coefficient
-dfca_n = electrolyteAct(obj,mean_electrolyte_concentration_anode,temperature);
-dfca_s = electrolyteAct(obj,mean_electrolyte_concentration_separator,temperature);
-dfca_p = electrolyteAct(obj,mean_electrolyte_concentration_cathode,temperature);
+dfca_n = SPMe().electrolyteAct(obj,mean_electrolyte_concentration_anode,temperature);
+dfca_s = SPMe().electrolyteAct(obj,mean_electrolyte_concentration_separator,temperature);
+dfca_p = SPMe().electrolyteAct(obj,mean_electrolyte_concentration_cathode,temperature);
 
 % Kinetic reaction rate, adjusted for Arrhenius temperature dependence
 anode_reaction_rate = anode.reaction_rate * exp(anode.intercalation_activation_energy/SPMe().R*(1/obj.nominal_temperature - 1/temperature));

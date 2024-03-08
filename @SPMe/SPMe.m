@@ -18,18 +18,21 @@ classdef SPMe < handle
         initial_voltage
     end
     properties(SetAccess = protected)
-        x0
-        solid_phase_matrices
-        electrolyte_matrices
+
     end
     properties (Dependent)
         anode_capacity
         cathode_capacity
         capacity
-        anode_concentration_range
-        cathode_concentration_range
     end
     properties (Hidden)
+        solid_phase_matrices
+        electrolyte_matrices
+        x0
+    end
+    properties (Dependent, Hidden)
+        anode_concentration_range
+        cathode_concentration_range
     end
     methods
 
@@ -64,23 +67,22 @@ classdef SPMe < handle
             data.current = -current/obj.electrode_area*10;
             data.temperature = temperature;
             Opt    = odeset('Events',@(t,x)detectImagSolution(obj,t,x,data));
-            [res.time,x] = ode23s(@(t,x) spme_ode(obj,t,x,data),[data.time(1),data.time(end)],obj.x0,Opt);
+            model = struct(obj);
+            [res.time,x] = ode23s(@(t,x) spme_ode(model,t,x,data),[data.time(1),data.time(end)],obj.x0,Opt);
             res.time = res.time';
             for k = 1:length(res.time)
                 % Compute outputs
                 [~,res.V(:,k),res.V_spm(:,k),res.SOC_n(:,k),res.SOC_p(:,k),...
                     res.anode_solid_surface_concentration(:,k),res.cathode_solid_surface_concentration(:,k),...
                     res.c_e(:,k),res.OCV(:,k),res.anode_potential(:,k),res.cathode_potential(:,k)] = ...
-                    spme_ode(obj,res.time(k),x(k,:)',data);
+                    spme_ode(model,res.time(k),x(k,:)',data);
             end
         end
         
         [value, isterminal, direction] = detectImagSolution(obj, t, x, data)
         [anode_concentration,cathode_concentration] = electrode_solid_concentrations(obj,V)
-        initialize_electrolyte_matrices(obj)
-        initialize_solid_phase_matrices(obj,anode_diffusion_coefficient,cathode_diffusion_coefficient)
-        [dActivity,varargout] = electrolyteAct(obj,c_e,T)
-        [i_0n,i_0p,varargout] = exch_cur_dens(obj,k_p,k_n,c_ss_n,c_ss_p,c_e)
+        initialize_electrolyte_matrices(obj)  
+        
         function val = get.anode_capacity(obj)
             val = obj.anode.volume_fraction_solid*...
                   obj.anode.electrode_thickness*...
@@ -113,6 +115,7 @@ classdef SPMe < handle
         [Uref] = refPotentialAnode(theta)
         [kappa,varargout] = electrolyteCond(c_e)
         [D_e,varargout] = electrolyteDe(c_e)
+        [dActivity,varargout] = electrolyteAct(model,c_e,T)
     end
 
 end

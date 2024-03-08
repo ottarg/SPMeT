@@ -18,6 +18,9 @@ current = 0.*time-10;
 current(1:find(time>10,1,"first")) = 0;
 current(find(time>40,1,"first"):end) = 0;
 temperature = 0.*time+30;
+data.time =time;
+data.current = current;
+data.temperature = temperature;
 [res,x] = model.simulate(time,current,temperature);
 
 figure
