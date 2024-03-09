@@ -20,8 +20,8 @@ for idx = 1:maxiters
         - obj.cathode.volume_fraction_solid*obj.cathode.electrode_thickness*obj.electrode_area*x(idx))...
           /(obj.anode.volume_fraction_solid  *obj.anode.electrode_thickness*obj.anode.maximum_concentration*obj.electrode_area);
 
-    OCPn = SPMe().refPotentialAnode(theta_n);
-    OCPp = SPMe().refPotentialCathode(theta_p);
+    OCPn = refPotentialAnode(theta_n);
+    OCPp = refPotentialCathode(theta_p);
 
     f(idx) = OCPp - OCPn - voltage;
 

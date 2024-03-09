@@ -6,48 +6,48 @@ function initialize_electrolyte_matrices(obj)
             Del_xp = obj.cathode.electrode_thickness * obj.discretization.delta_x_p;
 
             %% Matrices in nonlinear dynamics
-            obj.electrolyte_matrices.M1n = sparse((diag(ones(obj.discretization.Nxn-2,1),+1) - diag(ones(obj.discretization.Nxn-2,1),-1))/(2*Del_xn));
-            obj.electrolyte_matrices.M1s = sparse((diag(ones(obj.discretization.Nxs-2,1),+1) - diag(ones(obj.discretization.Nxs-2,1),-1))/(2*Del_xs));
-            obj.electrolyte_matrices.M1p = sparse((diag(ones(obj.discretization.Nxp-2,1),+1) - diag(ones(obj.discretization.Nxp-2,1),-1))/(2*Del_xp));
+            obj.electrolyte_matrices.M1n = ((diag(ones(obj.discretization.Nxn-2,1),+1) - diag(ones(obj.discretization.Nxn-2,1),-1))/(2*Del_xn));
+            obj.electrolyte_matrices.M1s = ((diag(ones(obj.discretization.Nxs-2,1),+1) - diag(ones(obj.discretization.Nxs-2,1),-1))/(2*Del_xs));
+            obj.electrolyte_matrices.M1p = ((diag(ones(obj.discretization.Nxp-2,1),+1) - diag(ones(obj.discretization.Nxp-2,1),-1))/(2*Del_xp));
 
 
             M2n = zeros(obj.discretization.Nxn-1,2);
             M2n(1,1) = -1/(2*Del_xn);
             M2n(end,end) = 1/(2*Del_xn);
-            obj.electrolyte_matrices.M2n = sparse(M2n);
+            obj.electrolyte_matrices.M2n = (M2n);
 
             M2s = zeros(obj.discretization.Nxs-1,2);
             M2s(1,1) = -1/(2*Del_xs);
             M2s(end,end) = 1/(2*Del_xs);
-            obj.electrolyte_matrices.M2s = sparse(M2s);
+            obj.electrolyte_matrices.M2s = (M2s);
 
             M2p = zeros(obj.discretization.Nxp-1,2);
             M2p(1,1) = -1/(2*Del_xp);
             M2p(end,end) = 1/(2*Del_xp);
-            obj.electrolyte_matrices.M2p = sparse(M2p);
+            obj.electrolyte_matrices.M2p = (M2p);
 
 
-            obj.electrolyte_matrices.M3n = sparse((-2*diag(ones(obj.discretization.Nxn-1,1),0) + diag(ones(obj.discretization.Nxn-2,1),+1) + diag(ones(obj.discretization.Nxn-2,1),-1))/(Del_xn^2));
-            obj.electrolyte_matrices.M3s = sparse((-2*diag(ones(obj.discretization.Nxs-1,1),0) + diag(ones(obj.discretization.Nxs-2,1),+1) + diag(ones(obj.discretization.Nxs-2,1),-1))/(Del_xs^2));
-            obj.electrolyte_matrices.M3p = sparse((-2*diag(ones(obj.discretization.Nxp-1,1),0) + diag(ones(obj.discretization.Nxp-2,1),+1) + diag(ones(obj.discretization.Nxp-2,1),-1))/(Del_xp^2));
+            obj.electrolyte_matrices.M3n = ((-2*diag(ones(obj.discretization.Nxn-1,1),0) + diag(ones(obj.discretization.Nxn-2,1),+1) + diag(ones(obj.discretization.Nxn-2,1),-1))/(Del_xn^2));
+            obj.electrolyte_matrices.M3s = ((-2*diag(ones(obj.discretization.Nxs-1,1),0) + diag(ones(obj.discretization.Nxs-2,1),+1) + diag(ones(obj.discretization.Nxs-2,1),-1))/(Del_xs^2));
+            obj.electrolyte_matrices.M3p = ((-2*diag(ones(obj.discretization.Nxp-1,1),0) + diag(ones(obj.discretization.Nxp-2,1),+1) + diag(ones(obj.discretization.Nxp-2,1),-1))/(Del_xp^2));
 
             M4n = zeros(obj.discretization.Nxn-1,2);
             M4n(1,1) = 1/(Del_xn^2);
             M4n(end,end) = 1/(Del_xn^2);
-            obj.electrolyte_matrices.M4n = sparse(M4n);
+            obj.electrolyte_matrices.M4n = (M4n);
 
             M4s = zeros(obj.discretization.Nxs-1,2);
             M4s(1,1) = 1/(Del_xs^2);
             M4s(end,end) = 1/(Del_xs^2);
-            obj.electrolyte_matrices.M4s = sparse(M4s);
+            obj.electrolyte_matrices.M4s = (M4s);
 
             M4p = zeros(obj.discretization.Nxp-1,2);
             M4p(1,1) = 1/(Del_xp^2);
             M4p(end,end) = 1/(Del_xp^2);
-            obj.electrolyte_matrices.M4p = sparse(M4p);
+            obj.electrolyte_matrices.M4p = (M4p);
 
-            obj.electrolyte_matrices.M5n = (1-obj.transference_number)*obj.anode.specific_interfacial_area/obj.anode.volume_fraction_electrolyte * speye(obj.discretization.Nxn-1);
-            obj.electrolyte_matrices.M5p = (1-obj.transference_number)*obj.cathode.specific_interfacial_area/obj.cathode.volume_fraction_electrolyte * speye(obj.discretization.Nxp-1);
+            obj.electrolyte_matrices.M5n = (1-obj.transference_number)*obj.anode.specific_interfacial_area/obj.anode.volume_fraction_electrolyte * eye(obj.discretization.Nxn-1);
+            obj.electrolyte_matrices.M5p = (1-obj.transference_number)*obj.cathode.specific_interfacial_area/obj.cathode.volume_fraction_electrolyte * eye(obj.discretization.Nxp-1);
 
             %% Boundary Conditions
             N1 = zeros(4,obj.discretization.Nx-3);
@@ -78,5 +78,5 @@ function initialize_electrolyte_matrices(obj)
             N2(4,4) =     3;
 
             %%% SPARSE OUTPUT
-            obj.electrolyte_matrices.C = sparse(-N2\N1);
+            obj.electrolyte_matrices.C = (-N2\N1);
         end

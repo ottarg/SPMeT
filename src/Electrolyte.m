@@ -1,7 +1,6 @@
 classdef Electrolyte < handle
 
     properties
-        separator_thickness
         volume_fraction_electrolyte = 1;
         concentration
         diffusion_activation_energy

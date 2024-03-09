@@ -87,8 +87,8 @@ function model = SPME_assumps_LCO()
     % Maxima based on DUALFOIL 
     % line 588 in DUALFOIL Fortran code
     model.total_moles_lithium = 1.8; % [mol]
-    model.anode.maximum_concentration   = 5.4e3 * 372 * 2800 / SPMe().F; % [mol/m^3]
-    model.cathode.maximum_concentration = 5.4e3 * 274 * 3010 / SPMe().F; % [mol/m^3]
+    model.anode.maximum_concentration   = 5.4e3 * 372 * 2800 / F; % [mol/m^3]
+    model.cathode.maximum_concentration = 5.4e3 * 274 * 3010 / F; % [mol/m^3]
     model.electrolyte.concentration     = 1e3;                           % [mol/m^3] (Fixed)
     
     %% Cutoff voltages

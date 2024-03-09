@@ -18,13 +18,13 @@ delta_sei = x(end);
 
 %%% MOLAR FLUXES
 % Compute total molar flux
-jn_tot =  current/(SPMe().F*  anode.specific_interfacial_area*obj.electrode_area*  anode.electrode_thickness);
-jp_tot = -current/(SPMe().F*cathode.specific_interfacial_area*obj.electrode_area*cathode.electrode_thickness);
+jn_tot =  current/(F*  anode.specific_interfacial_area*obj.electrode_area*  anode.electrode_thickness);
+jp_tot = -current/(F*cathode.specific_interfacial_area*obj.electrode_area*cathode.electrode_thickness);
 
 %%% SOLID PHASE DYNAMICS
 % Solid phase diffusivity temperature dependence
-anode_diffusion_coefficient   = anode.diffusion_coefficient * exp(anode.diffusion_activation_energy/SPMe().R*(1/obj.nominal_temperature - 1/temperature));
-cathode_diffusion_coefficient = cathode.diffusion_coefficient * exp(cathode.diffusion_activation_energy/SPMe().R*(1/obj.nominal_temperature - 1/temperature));
+anode_diffusion_coefficient   = anode.diffusion_coefficient * exp(anode.diffusion_activation_energy/R*(1/obj.nominal_temperature - 1/temperature));
+cathode_diffusion_coefficient = cathode.diffusion_coefficient * exp(cathode.diffusion_activation_energy/R*(1/obj.nominal_temperature - 1/temperature));
 
 % Construct (A,B) matrices for solid-phase Li diffusion
 obj = initialize_solid_phase_matrices(obj,anode_diffusion_coefficient,cathode_diffusion_coefficient);
@@ -61,14 +61,14 @@ mean_electrolyte_concentration_separator = mean(electrolyte_concentrations((obj.
 mean_electrolyte_concentration_cathode = mean(electrolyte_concentrations((obj.discretization.Nxn+obj.discretization.Nxs+1):(obj.discretization.Nxn+obj.discretization.Nxs+obj.discretization.Nxp+1),:));
 
 % Overpotentials due to electrolyte subsystem
-nominal_electrolyte_conductivity_anode = SPMe().electrolyteCond(mean_electrolyte_concentration_anode);
-nominal_electrolyte_conductivity_separator = SPMe().electrolyteCond(mean_electrolyte_concentration_separator);
-nominal_electrolyte_conductivity_cathode = SPMe().electrolyteCond(mean_electrolyte_concentration_cathode);
+nominal_electrolyte_conductivity_anode = electrolyteCond(mean_electrolyte_concentration_anode);
+nominal_electrolyte_conductivity_separator = electrolyteCond(mean_electrolyte_concentration_separator);
+nominal_electrolyte_conductivity_cathode = electrolyteCond(mean_electrolyte_concentration_cathode);
 
 % Adjustment for Arrhenius temperature dependence
-electrolyte_conductivity_anode = nominal_electrolyte_conductivity_anode * exp(obj.electrolyte.conductivity_activation_energy/SPMe().R*(1/obj.nominal_temperature - 1/temperature));
-electrolyte_conductivity_separator = nominal_electrolyte_conductivity_separator * exp(obj.electrolyte.conductivity_activation_energy/SPMe().R*(1/obj.nominal_temperature - 1/temperature));
-electrolyte_conductivity_cathode = nominal_electrolyte_conductivity_cathode * exp(obj.electrolyte.conductivity_activation_energy/SPMe().R*(1/obj.nominal_temperature - 1/temperature));
+electrolyte_conductivity_anode = nominal_electrolyte_conductivity_anode * exp(obj.electrolyte.conductivity_activation_energy/R*(1/obj.nominal_temperature - 1/temperature));
+electrolyte_conductivity_separator = nominal_electrolyte_conductivity_separator * exp(obj.electrolyte.conductivity_activation_energy/R*(1/obj.nominal_temperature - 1/temperature));
+electrolyte_conductivity_cathode = nominal_electrolyte_conductivity_cathode * exp(obj.electrolyte.conductivity_activation_energy/R*(1/obj.nominal_temperature - 1/temperature));
 
 % Bruggeman relationships
 kap_n_eff = electrolyte_conductivity_anode * anode.volume_fraction_electrolyte.^(obj.bruggemann_porosity);
@@ -76,27 +76,27 @@ kap_s_eff = electrolyte_conductivity_separator * obj.separator.volume_fraction_e
 kap_p_eff = electrolyte_conductivity_cathode * cathode.volume_fraction_electrolyte.^(obj.bruggemann_porosity);
 
 % Activity coefficient
-dfca_n = SPMe().electrolyteAct(obj,mean_electrolyte_concentration_anode,temperature);
-dfca_s = SPMe().electrolyteAct(obj,mean_electrolyte_concentration_separator,temperature);
-dfca_p = SPMe().electrolyteAct(obj,mean_electrolyte_concentration_cathode,temperature);
+dfca_n = electrolyteAct(obj,mean_electrolyte_concentration_anode,temperature);
+dfca_s = electrolyteAct(obj,mean_electrolyte_concentration_separator,temperature);
+dfca_p = electrolyteAct(obj,mean_electrolyte_concentration_cathode,temperature);
 
 % Kinetic reaction rate, adjusted for Arrhenius temperature dependence
-anode_reaction_rate = anode.reaction_rate * exp(anode.intercalation_activation_energy/SPMe().R*(1/obj.nominal_temperature - 1/temperature));
-cathode_reaction_rate = cathode.reaction_rate * exp(cathode.intercalation_activation_energy/SPMe().R*(1/obj.nominal_temperature - 1/temperature));
+anode_reaction_rate = anode.reaction_rate * exp(anode.intercalation_activation_energy/R*(1/obj.nominal_temperature - 1/temperature));
+cathode_reaction_rate = cathode.reaction_rate * exp(cathode.intercalation_activation_energy/R*(1/obj.nominal_temperature - 1/temperature));
 
 % Stochiometric Concentration Ratio
 theta_n = anode_solid_surface_concentration / anode.maximum_concentration;
 theta_p = cathode_solid_surface_concentration / cathode.maximum_concentration;
 
 % Equilibrium Potential
-anode_reference_potential = SPMe().refPotentialAnode(theta_n);
-cathode_reference_potential = SPMe().refPotentialCathode(theta_p);
+anode_reference_potential = refPotentialAnode(theta_n);
+cathode_reference_potential = refPotentialCathode(theta_p);
 
 % Exchange current density
 mean_electrolyte_concentrations = [mean_electrolyte_concentration_anode; mean_electrolyte_concentration_separator; mean_electrolyte_concentration_cathode];
 [i_0n,i_0p] = exch_cur_dens(obj,cathode_reaction_rate,anode_reaction_rate,anode_solid_surface_concentration,cathode_solid_surface_concentration,mean_electrolyte_concentrations);
 % Overpotentials
-RTaF=(SPMe().R*temperature)/(obj.charge_transfer_coefficient*SPMe().F);
+RTaF=(R*temperature)/(obj.charge_transfer_coefficient*F);
 anode_overpotential = RTaF * asinh(current / (2*anode.specific_interfacial_area*obj.electrode_area*anode.electrode_thickness*i_0n(1)));
 cathode_overpotential = RTaF * asinh(-current / (2*cathode.specific_interfacial_area*obj.electrode_area*cathode.electrode_thickness*i_0p(end)));
 
@@ -119,7 +119,7 @@ V_electrolyteCond = (anode.electrode_thickness/(2*kap_n_eff)...
     + cathode.electrode_thickness/(2*kap_p_eff))*current;
 
 % Overpotential due to electrolyte polarization
-V_electrolytePolar = (2*SPMe().R*temperature)/(SPMe().F) * (1-obj.transference_number)* ...
+V_electrolytePolar = (2*R*temperature)/(F) * (1-obj.transference_number)* ...
     ( (1+dfca_n) * (log(cens) - log(ce0n)) ...
     +(1+dfca_s) * (log(cesp) - log(cens)) ...
     +(1+dfca_p) * (log(ce0p) - log(cesp)));
@@ -138,14 +138,14 @@ V = V_noVCE + V_electrolyteCond + V_electrolytePolar;
 %   NOTE2: We assume this submodel only applies to anode
 
 % Difference btw solid and electrolyte overpotential [V]
-phi_se = anode_overpotential + anode_reference_potential + SPMe().F*anode_resistivity*jn_tot;
+phi_se = anode_overpotential + anode_reference_potential + F*anode_resistivity*jn_tot;
 
 % Side rxn overpotential [V]
-eta_s = phi_se - obj.side_reaction_product.reference_potential - SPMe().F*anode_resistivity * jn_tot;
+eta_s = phi_se - obj.side_reaction_product.reference_potential - F*anode_resistivity * jn_tot;
 
 % Molar flux of side rxn [mol/s-m^2]
 j_s = -obj.side_reaction_product.exchange_current_density/...
-    SPMe().F * exp((-obj.charge_transfer_coefficient*SPMe().F)/(SPMe().R*temperature)*eta_s);
+    F * exp((-obj.charge_transfer_coefficient*F)/(R*temperature)*eta_s);
 
 % SEI layer growth model [m/s]
 delta_sei_dot = -obj.side_reaction_product.molecular_weight/...
@@ -164,12 +164,12 @@ c_s_p_dot = obj.solid_phase_matrices.A_p*cathode_solid_concentration + obj.solid
 %% Electrolyte Dynamics
 
 % Compute Electrolyte Diffusion Coefficient and Derivative
-[D_en0,dD_en0] = SPMe().electrolyteDe(anode_electrolyte_concentration);
-[D_es0,dD_es0] = SPMe().electrolyteDe(separator_electrolyte_concentration);
-[D_ep0,dD_ep0] = SPMe().electrolyteDe(cathode_electrolyte_concentration);
+[D_en0,dD_en0] = electrolyteDe(anode_electrolyte_concentration);
+[D_es0,dD_es0] = electrolyteDe(separator_electrolyte_concentration);
+[D_ep0,dD_ep0] = electrolyteDe(cathode_electrolyte_concentration);
 
 % Adjustment for Arrhenius temperature dependence
-Arrh_De = exp(obj.electrolyte.diffusion_activation_energy/SPMe().R*(1/obj.nominal_temperature - 1/temperature));
+Arrh_De = exp(obj.electrolyte.diffusion_activation_energy/R*(1/obj.nominal_temperature - 1/temperature));
 D_en = D_en0 * Arrh_De;
 D_es = D_es0 * Arrh_De;
 D_ep = D_ep0 * Arrh_De;
@@ -210,8 +210,8 @@ anode_SOC = 3/anode.maximum_concentration * trapz(r_vec,r_vec.^2.*c_n);
 cathode_SOC = 3/cathode.maximum_concentration * trapz(r_vec,r_vec.^2.*c_p);
 
 % Equilibrium potentials
-[anode_OCV] = SPMe().refPotentialAnode(anode_SOC);
-[cathode_OCV] = SPMe().refPotentialCathode(cathode_SOC);
+[anode_OCV] = refPotentialAnode(anode_SOC);
+[cathode_OCV] = refPotentialCathode(cathode_SOC);
 OCV = cathode_OCV - anode_OCV;
 
 %% Concatenate time derivatives

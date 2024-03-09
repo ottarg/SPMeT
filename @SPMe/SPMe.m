@@ -16,9 +16,11 @@ classdef SPMe < handle
         bruggemann_porosity
         discretization
         initial_voltage
-    end
-    properties(SetAccess = protected)
-
+        solid_phase_matrices
+        electrolyte_matrices
+        x0
+        anode_concentration_range
+        cathode_concentration_range
     end
     properties (Dependent)
         anode_capacity
@@ -26,20 +28,18 @@ classdef SPMe < handle
         capacity
     end
     properties (Hidden)
-        solid_phase_matrices
-        electrolyte_matrices
-        x0
+
     end
     properties (Dependent, Hidden)
-        anode_concentration_range
-        cathode_concentration_range
+
     end
     methods
 
         function obj = SPMe()
 
         end
-
+        function postProcess()
+        end
         function initialize(obj)
             obj.discretization.delta_r_n = 1 / obj.discretization.radial_divisions;
             obj.discretization.delta_r_p = 1 / obj.discretization.radial_divisions;
@@ -51,6 +51,7 @@ classdef SPMe < handle
 
             % Solid concentration
             [initial_anode_concentration,initial_cathode_concentration] = obj.electrode_solid_concentrations(obj.initial_voltage);
+            obj = initialize_solid_phase_matrices(obj,0,0);
             initial_anode_concentration = initial_anode_concentration * ones(obj.discretization.radial_divisions-1,1);
             initial_cathode_concentration = initial_cathode_concentration * ones(obj.discretization.radial_divisions-1,1);
             % Electrolyte concentration
@@ -86,12 +87,12 @@ classdef SPMe < handle
         function val = get.anode_capacity(obj)
             val = obj.anode.volume_fraction_solid*...
                   obj.anode.electrode_thickness*...
-                      obj.anode_concentration_range*SPMe().F/3600;
+                      obj.anode_concentration_range*F/3600;
         end
         function val = get.cathode_capacity(obj)
             val = obj.cathode.volume_fraction_solid*...
                   obj.cathode.electrode_thickness*...
-                      obj.cathode_concentration_range*SPMe().F/3600;
+                      obj.cathode_concentration_range*F/3600;
         end
         function val = get.capacity(obj)
             val = min(obj.anode_capacity, obj.cathode_capacity);
@@ -106,16 +107,32 @@ classdef SPMe < handle
              [~,high_v_cathode_concentration] = obj.electrode_solid_concentrations(obj.maximum_voltage);
              val = low_v_cathode_concentration-high_v_cathode_concentration;
         end
+        function s = getStruct(obj)
+            for i = 1:length(obj)
+                props = properties(obj(i));
+                %convert props to struct
+                for j = 1:length(props)
+                    if (isa(obj(i).(props{j}),'Component'))
+                        propName = (obj(i).(props{j}).name); % If subcomponent is an array of components, this will catch the first ones name. Different names not supported.
+                        s(i).(propName) = obj(i).(props{j}).getStruct(); %get structures from the lower levels
+                    elseif (isobject(obj(i).(props{j})))
+                        s(i).(props{j}) = struct(obj(i).(props{j})); %get the property value
+                    else
+                        s(i).(props{j}) = obj(i).(props{j}); %get the property value
+                    end
+                end
+            end
+        end
     end
         
     methods (Static)
-        F = F
-        R = R
-        [Uref] = refPotentialCathode(theta)
-        [Uref] = refPotentialAnode(theta)
-        [kappa,varargout] = electrolyteCond(c_e)
-        [D_e,varargout] = electrolyteDe(c_e)
-        [dActivity,varargout] = electrolyteAct(model,c_e,T)
+%         F = F
+%         R = R
+%         [Uref] = refPotentialCathode(theta)
+%         [Uref] = refPotentialAnode(theta)
+%         [kappa,varargout] = electrolyteCond(c_e)
+%         [D_e,varargout] = electrolyteDe(c_e)
+%         [dActivity,varargout] = electrolyteAct(model,c_e,T)
     end
 
 end
