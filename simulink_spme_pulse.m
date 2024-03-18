@@ -1,5 +1,5 @@
-clear
-close all
+% clear
+% close all
 
 mdl = SPME_assumps_LCO;
 mdl.discretization.radial_divisions = 80;
@@ -60,16 +60,16 @@ axis tight
 %     pause(0.1)
 % end
 % 
-figure
-hold on
-plot(res.Time,res.anode_SOC)
-plot(res.Time,res.cathode_SOC)
-
-
-figure
-plot(refPotentialCathode(0:0.01:1)-refPotentialAnode(1:-0.01:0))
-figure
-hold on
-plot(refPotentialAnode(1:-0.01:0))
-plot(refPotentialCathode(0:0.01:1))
+% figure
+% hold on
+% plot(res.Time,res.anode_SOC)
+% plot(res.Time,res.cathode_SOC)
+% 
+% 
+% figure
+% plot(refPotentialCathode(0:0.01:1)-refPotentialAnode(1:-0.01:0))
+% figure
+% hold on
+% plot(refPotentialAnode(1:-0.01:0))
+% plot(refPotentialCathode(0:0.01:1))
 
