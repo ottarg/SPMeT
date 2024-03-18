@@ -28,7 +28,7 @@ superLabel('Time (s)','Current (A)','',0)
 axis tight
 subplot(2,2,3)
 hold on
-plot(matlabRes.time,matlabRes.SOC_n,'DisplayName','Anode')
+plot(matlabRes.time,matlabRes.an,'DisplayName','Anode')
 plot(matlabRes.time,matlabRes.SOC_p,'DisplayName','Cathode')
 superLabel('Time (s)','SOC','',1)
 axis tight

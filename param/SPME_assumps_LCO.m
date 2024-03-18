@@ -53,7 +53,7 @@ function model = SPME_assumps_LCO()
     
     % Nominal Reaction rates
     model.anode.reaction_rate   = 5e-6; % [(A/m^2)*(mol^3/mol)^(1+alpha)]
-    model.cathode.reaction_rate = 9e-7; % [(A/m^2)*(mol^3/mol)^(1+alpha)]
+    model.cathode.reaction_rate = 9e-6; % [(A/m^2)*(mol^3/mol)^(1+alpha)]
     
     % Activation Energies
     % Taken from Zhang et al (2014) [Harbin]
