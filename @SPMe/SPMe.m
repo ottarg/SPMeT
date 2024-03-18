@@ -70,7 +70,7 @@ classdef SPMe < handle
             data.temperature = temperature;
             Opt    = odeset('Events',@(t,x)detectImagSolution(obj,t,x,data));
             model = obj.getStruct;
-            [res.time,x] = ode23s(@(t,x) spme_ode(model,t,x,data),[data.time],obj.x0,Opt);
+            [res.time,x] = ode15s(@(t,x) spme_ode(model,t,x,data),[data.time(1),data.time(end)],obj.x0,Opt);
             res.time = res.time';
             for k = 1:length(res.time)
                 % Compute outputs
