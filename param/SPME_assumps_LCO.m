@@ -12,7 +12,9 @@ function model = SPME_assumps_LCO()
     %% Geometric Params
     % Electrode current collector area [m^2]
     model.electrode_area = 1; 
-    
+    model.anode.area = 1; 
+    model.cathode.area = 1; 
+     
     % Thickness of each layer
     model.anode.electrode_thickness   = 100e-6; % [m]
     model.separator.thickness         = 25e-6;  % [m]
@@ -30,14 +32,6 @@ function model = SPME_assumps_LCO()
     model.separator.volume_fraction_electrolyte = 1.0; % Volume fraction in electrolyte for separator
     model.cathode.volume_fraction_electrolyte   = 0.3; % Volume fraction in electrolyte for pos. electrode
     
-    % make element to calculate phi_{s} by Saehong Park 
-%     model.anode.volume_fraction_filler   = 1-model.anode.volume_fraction_solid  -model.anode.volume_fraction_electrolyte;   % Volume fraction of filler in neg. electrode
-%     model.cathode.volume_fraction_filler = 1-model.cathode.volume_fraction_solid-model.cathode.volume_fraction_electrolyte; % Volume fraction of filler in pos. electrode
-        
-    % Specific interfacial surface area
-%     model.anode.specific_interfacial_area   = 3*model.anode.volume_fraction_solid   / model.anode.particle_radius;   % Negative electrode [m^2/m^3]
-%     model.cathode.specific_interfacial_area = 3*model.cathode.volume_fraction_solid / model.cathode.particle_radius; % Positive electrode [m^2/m^3]
-    
     %% Transport Params
     % Diffusion coefficient in solid
     model.anode.diffusion_coefficient   = 3.9e-14; % Diffusion coeff for solid in neg. electrode, [m^2/s]
@@ -53,13 +47,13 @@ function model = SPME_assumps_LCO()
     model.charge_transfer_coefficient = 0.5; % Charge transfer coefficients
     
     model.anode.sei_resistivity   = 1e-3; % Resistivity of SEI layer, [Ohms*m^2]
-    model.cathode.sei_resistivity = 0;    % Resistivity of SEI layer, [Ohms*m^2]
+%     model.cathode.sei_resistivity = 0;    % Resistivity of SEI layer, [Ohms*m^2]
     % Current Collector Resistance, [Ohms] -- NOT IMPLEMENTED
     % p.non_jellyroll_resistance = 2e-3;         
     
     % Nominal Reaction rates
-    model.anode.reaction_rate   = 1e-5; % [(A/m^2)*(mol^3/mol)^(1+alpha)]
-    model.cathode.reaction_rate = 3e-7; % [(A/m^2)*(mol^3/mol)^(1+alpha)]
+    model.anode.reaction_rate   = 5e-6; % [(A/m^2)*(mol^3/mol)^(1+alpha)]
+    model.cathode.reaction_rate = 9e-7; % [(A/m^2)*(mol^3/mol)^(1+alpha)]
     
     % Activation Energies
     % Taken from Zhang et al (2014) [Harbin]
@@ -86,14 +80,14 @@ function model = SPME_assumps_LCO()
     %% Concentrations
     % Maxima based on DUALFOIL 
     % line 588 in DUALFOIL Fortran code
-    model.total_moles_lithium = 1.8; % [mol]
-    model.anode.maximum_concentration   = 5.4e3 * 372 * 2800 / F; % [mol/m^3]
+    model.total_moles_lithium = 2.25; % [mol]
+    model.anode.maximum_concentration   = 5.4e3 * 274 * 2550 / F; % [mol/m^3]
     model.cathode.maximum_concentration = 5.4e3 * 274 * 3010 / F; % [mol/m^3]
     model.electrolyte.concentration     = 1e3;                           % [mol/m^3] (Fixed)
     
     %% Cutoff voltages
-    model.maximum_voltage = 4.7;        % [V]
-    model.minimum_voltage = 3.105;      % [V]
+    model.maximum_voltage = 4.25;        % [V]
+    model.minimum_voltage = 3.0;      % [V]
 
     %% Thermal
     model.nominal_temperature = 298.15; % [K]

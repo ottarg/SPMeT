@@ -16,9 +16,8 @@ x(1) = 0.6 * obj.cathode.maximum_concentration;
 for idx = 1:maxiters
 
     theta_p = x(idx)/obj.cathode.maximum_concentration;
-    theta_n = (obj.total_moles_lithium...
-        - obj.cathode.volume_fraction_solid*obj.cathode.electrode_thickness*obj.electrode_area*x(idx))...
-          /(obj.anode.volume_fraction_solid  *obj.anode.electrode_thickness*obj.anode.maximum_concentration*obj.electrode_area);
+    theta_n = (obj.total_moles_lithium - obj.cathode.volume_fraction_solid*obj.cathode.electrode_thickness*obj.electrode_area*x(idx))...
+                                        /(obj.anode.volume_fraction_solid *obj.anode.electrode_thickness*obj.anode.maximum_concentration*obj.electrode_area);
 
     OCPn = refPotentialAnode(theta_n);
     OCPp = refPotentialCathode(theta_p);

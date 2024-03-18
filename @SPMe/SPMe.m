@@ -19,13 +19,14 @@ classdef SPMe < handle
         solid_phase_matrices
         electrolyte_matrices
         x0
-        anode_concentration_range
-        cathode_concentration_range
     end
     properties (Dependent)
+        anode_concentration_range
+        cathode_concentration_range
         anode_capacity
         cathode_capacity
         capacity
+        NP_ratio
     end
     properties (Hidden)
 
@@ -65,7 +66,7 @@ classdef SPMe < handle
         function [res,x] = simulate(obj,time,current,temperature)
             obj.initialize;
             data.time = time;
-            data.current = -current/obj.electrode_area*10;
+            data.current = -current;
             data.temperature = temperature;
             Opt    = odeset('Events',@(t,x)detectImagSolution(obj,t,x,data));
             model = struct(obj);
@@ -75,7 +76,7 @@ classdef SPMe < handle
                 % Compute outputs
                 [~,res.V(:,k),res.V_spm(:,k),res.SOC_n(:,k),res.SOC_p(:,k),...
                     res.anode_solid_surface_concentration(:,k),res.cathode_solid_surface_concentration(:,k),...
-                    res.c_e(:,k),res.OCV(:,k),res.anode_potential(:,k),res.cathode_potential(:,k)] = ...
+                    res.electrolyte_concentrations(:,k),res.OCV(:,k),res.anode_potential(:,k),res.cathode_potential(:,k)] = ...
                     spme_ode(model,res.time(k),x(k,:)',data);
             end
         end
@@ -107,6 +108,9 @@ classdef SPMe < handle
              [~,high_v_cathode_concentration] = obj.electrode_solid_concentrations(obj.maximum_voltage);
              val = low_v_cathode_concentration-high_v_cathode_concentration;
         end
+        function val = get.NP_ratio(obj)
+             val = obj.anode.molar_capacity/obj.cathode.molar_capacity;
+        end
         function s = getStruct(obj)
             for i = 1:length(obj)
                 props = properties(obj(i));
@@ -126,13 +130,6 @@ classdef SPMe < handle
     end
         
     methods (Static)
-%         F = F
-%         R = R
-%         [Uref] = refPotentialCathode(theta)
-%         [Uref] = refPotentialAnode(theta)
-%         [kappa,varargout] = electrolyteCond(c_e)
-%         [D_e,varargout] = electrolyteDe(c_e)
-%         [dActivity,varargout] = electrolyteAct(model,c_e,T)
     end
 
 end

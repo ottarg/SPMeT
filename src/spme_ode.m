@@ -156,8 +156,6 @@ jn = (abs(jn_tot) - abs(j_s)) * sign(jn_tot);
 jp = jp_tot;
 
 %% Solid Phase Dynamics
-
-% ODE for c_s
 c_s_n_dot = obj.solid_phase_matrices.A_n*anode_solid_concentration + obj.solid_phase_matrices.B_n*jn;
 c_s_p_dot = obj.solid_phase_matrices.A_p*cathode_solid_concentration + obj.solid_phase_matrices.B_p*jp;
 

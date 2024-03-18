@@ -6,11 +6,12 @@ function initialize_electrolyte_matrices(obj)
             Del_xp = obj.cathode.electrode_thickness * obj.discretization.delta_x_p;
 
             %% Matrices in nonlinear dynamics
+            % M1 is first spatial derivative in First Fick's law
             obj.electrolyte_matrices.M1n = ((diag(ones(obj.discretization.Nxn-2,1),+1) - diag(ones(obj.discretization.Nxn-2,1),-1))/(2*Del_xn));
             obj.electrolyte_matrices.M1s = ((diag(ones(obj.discretization.Nxs-2,1),+1) - diag(ones(obj.discretization.Nxs-2,1),-1))/(2*Del_xs));
             obj.electrolyte_matrices.M1p = ((diag(ones(obj.discretization.Nxp-2,1),+1) - diag(ones(obj.discretization.Nxp-2,1),-1))/(2*Del_xp));
 
-
+            %M2 is boundary conditions between domains for M1
             M2n = zeros(obj.discretization.Nxn-1,2);
             M2n(1,1) = -1/(2*Del_xn);
             M2n(end,end) = 1/(2*Del_xn);
@@ -26,7 +27,7 @@ function initialize_electrolyte_matrices(obj)
             M2p(end,end) = 1/(2*Del_xp);
             obj.electrolyte_matrices.M2p = (M2p);
 
-
+            % M3 is second spatial derivative in Second Fick's law
             obj.electrolyte_matrices.M3n = ((-2*diag(ones(obj.discretization.Nxn-1,1),0) + diag(ones(obj.discretization.Nxn-2,1),+1) + diag(ones(obj.discretization.Nxn-2,1),-1))/(Del_xn^2));
             obj.electrolyte_matrices.M3s = ((-2*diag(ones(obj.discretization.Nxs-1,1),0) + diag(ones(obj.discretization.Nxs-2,1),+1) + diag(ones(obj.discretization.Nxs-2,1),-1))/(Del_xs^2));
             obj.electrolyte_matrices.M3p = ((-2*diag(ones(obj.discretization.Nxp-1,1),0) + diag(ones(obj.discretization.Nxp-2,1),+1) + diag(ones(obj.discretization.Nxp-2,1),-1))/(Del_xp^2));
