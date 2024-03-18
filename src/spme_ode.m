@@ -103,7 +103,7 @@ cathode_overpotential = RTaF * asinh(-current / (2*cathode.specific_interfacial_
 % Total resistance (film + growing SEI layer)
 anode_resistivity = anode.sei_resistivity + delta_sei/obj.side_reaction_product.conductivity;
 anode_resistance = anode_resistivity/(anode.specific_interfacial_area*anode.electrode_thickness*obj.electrode_area);
-cathode_resistivity = cathode.sei_resistivity + 0;
+cathode_resistivity =  0;
 cathode_resistance = cathode_resistivity/(cathode.specific_interfacial_area*cathode.electrode_thickness*obj.electrode_area);
 electrode_resistance = anode_resistance + cathode_resistance;
 % SPM Voltage (i.e. w/o electrolyte concentration terms)

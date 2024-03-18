@@ -38,11 +38,3 @@ plot(res.time,res.anode_potential,'DisplayName','Anode')
 plot(res.time,res.cathode_potential,'DisplayName','Cathode')
 superLabel('Time (s)','Voltage (V)','',1)
 axis tight
-
-
-figure
-for i = 1:width(res.electrolyte_concentrations)
-    plot(res.electrolyte_concentrations(:,i))
-    drawnow
-    pause(0.1)
-end
