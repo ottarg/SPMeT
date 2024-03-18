@@ -49,3 +49,7 @@ plot(simulinkRes.Time,simulinkRes.anode_potential,'DisplayName','Anode')
 plot(simulinkRes.Time,simulinkRes.cathode_potential,'DisplayName','Cathode')
 superLabel('Time (s)','Voltage (V)','',1)
 axis tight
+
+
+
+

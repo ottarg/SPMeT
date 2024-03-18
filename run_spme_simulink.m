@@ -13,7 +13,7 @@ mdl.initial_voltage = voltage(1);
 mdl.initialize
 model = mdl.getStruct();
 
-profile_scaling = 0.62/(abs(trapz(time,current)./3600)/mdl.capacity); % Scale to use 30% SOC
+profile_scaling = 0.59/(abs(trapz(time,current)./3600)/mdl.capacity); % Scale to use 30% SOC
 stopTime = time(end);
 simIn = Simulink.SimulationInput("CellSim");
 load_system("CellSim");
@@ -49,18 +49,3 @@ plot(res.Time,res.anode_potential,'DisplayName','Anode')
 plot(res.Time,res.cathode_potential,'DisplayName','Cathode')
 superLabel('Time (s)','Voltage (V)','',1)
 axis tight
-
-% 
-% f = figure;
-% plot(gca,[res.concentration(1,1:29),res.concentration(1,59:80),res.concentration(1,58:-1:30)],'LineWidth',2)
-% superLabel('','Concentration (mol/m^3)','',0)
-% for i = 1:height(res.concentration)
-% f.Children.Children.YData = [res.concentration(i,1:29),res.concentration(i,59:80),res.concentration(i,58:-1:30)];
-%     drawnow
-%     pause(0.1)
-% end
-% 
-figure
-hold on
-plot(res.Time,res.anode_overpotential)
-plot(res.Time,res.cathode_overpotential)
