@@ -1,17 +1,18 @@
-clear
-close all
-load('C:\Users\ogislason\Documents\MATLAB\SPMeT\input-data\UDDS.mat')
+% clearvars; close all
+tic
+load('UDDS.mat')
 testvoltage = timeseries(voltage,time,"Name",'Voltage');
+
 mdl = LCO_parameters;
 mdl.initial_voltage = voltage(1);
 mdl.initialize
-model = mdl.getStruct();
 
-profile_scaling = 0.59/(abs(trapz(time,current)./3600)/mdl.capacity); % Scale to use 30% SOC
+model = mdl.getStruct();
+profile_scaling = 0.59/(abs(trapz(time,current)./3600)/mdl.capacity);
 stopTime = time(end);
-simIn = Simulink.SimulationInput("SPMeT_System");
-load_system("SPMeT_System");
-inDS = createInputDataset("SPMeT_System");
+simIn = Simulink.SimulationInput("CellSim");
+load_system("CellSim");
+inDS = createInputDataset("CellSim");
 inDS{1} = timeseries(-profile_scaling*current,time,'Name',inDS{1}.name);
 inDS{2} = timeseries(temp-5,time,'Name',inDS{2}.name);
 simIn = setExternalInput(simIn,inDS);
@@ -75,3 +76,4 @@ for ppp=1:length(ax)
     catch
     end
 end
+display("Simulated UDDS cycle in " + num2str(toc) + " seconds")

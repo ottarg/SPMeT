@@ -1,5 +1,4 @@
-clear
-close all
+clearvars; close all
 tic
 mdl = LCO_parameters;
 mdl.maximum_voltage = 4.25;
@@ -7,15 +6,13 @@ mdl.minimum_voltage = 3;
 mdl.initial_voltage = mdl.minimum_voltage;
 mdl.initialize  
 model = mdl.getStruct();
-loggingStep = 1;
+
 time = 0:0.1:3500;
 stopTime = time(end);
-current = -1*mdl.capacity+time.*0;
 temp = 25+time.*0;
 simIn = Simulink.SimulationInput("fastchargeSim");
 load_system("fastchargeSim");
 inDS = createInputDataset("fastchargeSim");
-% inDS{1} = timeseries(current,time,'Name',inDS{1}.name);
 inDS{1} = timeseries(temp,time,'Name',inDS{1}.name);
 simIn = setExternalInput(simIn,inDS);
 out = sim(simIn);

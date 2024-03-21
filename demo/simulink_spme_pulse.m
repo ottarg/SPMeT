@@ -1,5 +1,4 @@
-clear
-close all
+clearvars; close all
 tic
 mdl = LCO_parameters;
 mdl.initial_voltage = 4.1;
@@ -8,9 +7,7 @@ model = mdl.getStruct();
 loggingStep = 1;
 time = 0:0.1:240;
 stopTime = time(end);
-current = mdl.capacity+time.*0;
-current(time<20) = 0;
-current(time>50) = 0;
+current = mdl.capacity+time.*0; current(time<20) = 0; current(time>50) = 0;
 temp = 25+time.*0;
 simIn = Simulink.SimulationInput("CellSim");
 load_system("CellSim");
@@ -78,4 +75,4 @@ for ppp=1:length(ax)
     end
 end
 
-display("Simulated discharge in " + num2str(toc) + " seconds")
+display("Simulated discharge pulse in " + num2str(toc) + " seconds")
