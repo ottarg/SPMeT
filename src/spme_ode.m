@@ -162,9 +162,9 @@ c_s_p_dot = obj.solid_phase_matrices.A_p*cathode_solid_concentration + obj.solid
 %% Electrolyte Dynamics
 
 % Compute Electrolyte Diffusion Coefficient and Derivative
-[D_en0,dD_en0] = electrolyteDe(anode_electrolyte_concentration);
-[D_es0,dD_es0] = electrolyteDe(separator_electrolyte_concentration);
-[D_ep0,dD_ep0] = electrolyteDe(cathode_electrolyte_concentration);
+[D_en0,dD_en0] = electrolyte_diffusion_coefficient(anode_electrolyte_concentration);
+[D_es0,dD_es0] = electrolyte_diffusion_coefficient(separator_electrolyte_concentration);
+[D_ep0,dD_ep0] = electrolyte_diffusion_coefficient(cathode_electrolyte_concentration);
 
 % Adjustment for Arrhenius temperature dependence
 Arrh_De = exp(obj.electrolyte.diffusion_activation_energy/R*(1/obj.nominal_temperature - 1/temperature));
