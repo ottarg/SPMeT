@@ -23,7 +23,7 @@ figure
 subplot(2,2,1)
 hold on
 plot(simulinkRes.Time,simulinkRes.CCV,'DisplayName','Model CCV')
-plot(testvoltage,'--k','DisplayName','Test CCV')
+plot(testvoltage,'--k','DisplayName','Test data')
 plot(simulinkRes.Time,simulinkRes.OCV,'DisplayName','OCV')
 xlabel('Time (s)')
 ylabel('Voltage (V)')

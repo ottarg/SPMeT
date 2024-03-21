@@ -1,15 +1,14 @@
 clearvars; close all
 tic
 mdl = LCO_parameters;
-mdl.maximum_voltage = 4.25;
-mdl.minimum_voltage = 3;
+anode_potential_target = 35;
 mdl.initial_voltage = mdl.minimum_voltage;
 mdl.initialize  
 model = mdl.getStruct();
 
-time = 0:0.1:3500;
+time = 0:0.1:3600;
 stopTime = time(end);
-temp = 25+time.*0;
+temp = 45+time.*0;
 simIn = Simulink.SimulationInput("fastchargeSim");
 load_system("fastchargeSim");
 inDS = createInputDataset("fastchargeSim");
@@ -41,14 +40,16 @@ plot(simulinkRes.Time,simulinkRes.anode_SOC,'DisplayName','Anode')
 plot(simulinkRes.Time,simulinkRes.cathode_SOC,'DisplayName','Cathode')
 xlabel('Time (s)')
 ylabel('SOC')
+legend Location Best
 axis tight
 grid on; box on;
 subplot(2,2,4)
 hold on
 plot(simulinkRes.Time,1e3.*simulinkRes.anode_potential,'DisplayName','Anode')
 xlabel('Time (s)')
-ylabel('Voltage (mV)')
+ylabel('Anode Potential (mV)')
 axis tight
+ylim([0,100])
 grid on; box on;
 plotPosition = [2 2 8 6];
 plotPaperPosition = [2 2 8 6];
@@ -73,7 +74,8 @@ for ppp=1:length(ax)
     catch
     end
 end
-
+figure
+plot(simulinkRes.CCV,-simulinkRes.current,'DisplayName','Model CCV')
 display("Simulated fast charge in " + num2str(toc) + " seconds")
 
 

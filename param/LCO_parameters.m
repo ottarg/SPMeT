@@ -53,13 +53,13 @@ function model = LCO_parameters()
     %% Kinetic Params
     model.charge_transfer_coefficient = 0.5; % Charge transfer coefficients
     
-    model.anode.sei_resistivity   = 1e-3; % Resistivity of SEI layer, [Ohms*m^2]
+    model.anode.sei_resistivity   = 2e-3; % Resistivity of SEI layer, [Ohms*m^2]
 %     model.cathode.sei_resistivity = 0;    % Resistivity of SEI layer, [Ohms*m^2]
     % Current Collector Resistance, [Ohms] -- NOT IMPLEMENTED
     % p.non_jellyroll_resistance = 2e-3;         
     
     % Nominal Reaction rates
-    model.anode.reaction_rate   = 5e-6; % [(A/m^2)*(mol^3/mol)^(1+alpha)]
+    model.anode.reaction_rate   = 1.5e-6; % [(A/m^2)*(mol^3/mol)^(1+alpha)]
     model.cathode.reaction_rate = 9e-6; % [(A/m^2)*(mol^3/mol)^(1+alpha)]
     
     % Activation Energies
@@ -93,7 +93,7 @@ function model = LCO_parameters()
     model.electrolyte.concentration     = 1e3;                           % [mol/m^3] (Fixed)
     
     %% Cutoff voltages
-    model.maximum_voltage = 4.25;        % [V]
+    model.maximum_voltage = 4.25;     % [V]
     model.minimum_voltage = 3.0;      % [V]
 
     %% Thermal
