@@ -2,22 +2,16 @@ clear
 close all
 load('C:\Users\ogislason\Documents\MATLAB\SPMeT\input-data\UDDS.mat')
 testvoltage = timeseries(voltage,time,"Name",'Voltage');
-
-
 mdl = LCO_parameters;
-mdl.discretization.radial_divisions = 30;
-mdl.discretization.Nxn = 10;
-mdl.discretization.Nxs = 5;
-mdl.discretization.Nxp = 10;
 mdl.initial_voltage = voltage(1);
 mdl.initialize
 model = mdl.getStruct();
 
 profile_scaling = 0.59/(abs(trapz(time,current)./3600)/mdl.capacity); % Scale to use 30% SOC
 stopTime = time(end);
-simIn = Simulink.SimulationInput("CellSim");
-load_system("CellSim");
-inDS = createInputDataset("CellSim");
+simIn = Simulink.SimulationInput("SPMeT_System");
+load_system("SPMeT_System");
+inDS = createInputDataset("SPMeT_System");
 inDS{1} = timeseries(-profile_scaling*current,time,'Name',inDS{1}.name);
 inDS{2} = timeseries(temp-5,time,'Name',inDS{2}.name);
 simIn = setExternalInput(simIn,inDS);

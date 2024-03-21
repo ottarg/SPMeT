@@ -1,20 +1,16 @@
 clear
 close all
-
+tic
 mdl = LCO_parameters;
-mdl.discretization.radial_divisions = 80;
-mdl.discretization.Nxn = 15;
-mdl.discretization.Nxs = 15;
-mdl.discretization.Nxp = 15;
-mdl.maximum_voltage = 4.55;
-mdl.minimum_voltage = 2.01;
-mdl.initial_voltage = mdl.maximum_voltage;
+mdl.initial_voltage = 4.1;
 mdl.initialize
 model = mdl.getStruct();
 loggingStep = 1;
-time = 0:0.1:3000;
+time = 0:0.1:240;
 stopTime = time(end);
 current = mdl.capacity+time.*0;
+current(time<20) = 0;
+current(time>50) = 0;
 temp = 25+time.*0;
 simIn = Simulink.SimulationInput("CellSim");
 load_system("CellSim");
@@ -24,7 +20,6 @@ inDS{2} = timeseries(temp,time,'Name',inDS{2}.name);
 simIn = setExternalInput(simIn,inDS);
 out = sim(simIn);
 simulinkRes = out.logsout.extractTimetable;
-
 
 figure
 subplot(2,2,1)
@@ -83,3 +78,4 @@ for ppp=1:length(ax)
     end
 end
 
+display("Simulated discharge in " + num2str(toc) + " seconds")

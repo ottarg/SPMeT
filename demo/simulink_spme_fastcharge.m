@@ -1,11 +1,7 @@
 clear
 close all
-
+tic
 mdl = LCO_parameters;
-mdl.discretization.radial_divisions = 80;
-mdl.discretization.Nxn = 15;
-mdl.discretization.Nxs = 15;
-mdl.discretization.Nxp = 15;
 mdl.maximum_voltage = 4.25;
 mdl.minimum_voltage = 3;
 mdl.initial_voltage = mdl.minimum_voltage;
@@ -17,10 +13,10 @@ stopTime = time(end);
 current = -1*mdl.capacity+time.*0;
 temp = 25+time.*0;
 simIn = Simulink.SimulationInput("fastchargeSim");
-load_system("CellSim");
-inDS = createInputDataset("CellSim");
-inDS{1} = timeseries(current,time,'Name',inDS{1}.name);
-inDS{2} = timeseries(temp,time,'Name',inDS{2}.name);
+load_system("fastchargeSim");
+inDS = createInputDataset("fastchargeSim");
+% inDS{1} = timeseries(current,time,'Name',inDS{1}.name);
+inDS{1} = timeseries(temp,time,'Name',inDS{1}.name);
 simIn = setExternalInput(simIn,inDS);
 out = sim(simIn);
 simulinkRes = out.logsout.extractTimetable;
@@ -81,6 +77,6 @@ for ppp=1:length(ax)
     end
 end
 
-
+display("Simulated fast charge in " + num2str(toc) + " seconds")
 
 

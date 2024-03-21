@@ -7,8 +7,15 @@
 %   Electrode area chosen to correspond to 2.3 Ah cell
 %   NOTE: Parameters represent an illustrative cell
 
-function model = SPME_assumps_LCO()
+function model = LCO_parameters()
     model = SPMe;
+
+
+    %% Discretization 
+    model.discretization.radial_divisions = 30;
+    model.discretization.Nxn = 10;
+    model.discretization.Nxs = 5;
+    model.discretization.Nxp = 10;
     %% Geometric Params
     % Electrode current collector area [m^2]
     model.electrode_area = 1; 
