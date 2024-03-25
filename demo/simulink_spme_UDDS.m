@@ -10,9 +10,9 @@ mdl.initialize
 model = mdl.getStruct();
 profile_scaling = 0.59/(abs(trapz(time,current)./3600)/mdl.capacity);
 stopTime = time(end);
-simIn = Simulink.SimulationInput("CellSim");
-load_system("CellSim");
-inDS = createInputDataset("CellSim");
+simIn = Simulink.SimulationInput("SPMeT_System");
+load_system("SPMeT_System");
+inDS = createInputDataset("SPMeT_System");
 inDS{1} = timeseries(-profile_scaling*current,time,'Name',inDS{1}.name);
 inDS{2} = timeseries(temp-5,time,'Name',inDS{2}.name);
 simIn = setExternalInput(simIn,inDS);

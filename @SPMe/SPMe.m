@@ -49,7 +49,9 @@ classdef SPMe < handle
             obj.discretization.delta_x_n = 1 / obj.discretization.Nxn;
             obj.discretization.delta_x_s = 1 / obj.discretization.Nxs;
             obj.discretization.delta_x_p = 1 / obj.discretization.Nxp;
-
+            obj.anode.solid_concentration_state_inds = 1:(obj.discretization.radial_divisions-1);
+            obj.cathode.solid_concentration_state_inds = obj.discretization.radial_divisions : 2*(obj.discretization.radial_divisions-1);
+           
             % Solid concentration
             [initial_anode_concentration,initial_cathode_concentration] = obj.electrode_solid_concentrations(obj.initial_voltage);
             obj = initialize_solid_phase_matrices(obj,0,0);

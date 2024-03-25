@@ -11,6 +11,7 @@ classdef Electrode < handle
         intercalation_activation_energy
         diffusion_activation_energy
         maximum_concentration
+        solid_concentration_state_inds
     end
     properties (Dependent)
         volume_fraction_filler
